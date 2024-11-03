@@ -1,11 +1,15 @@
 import math
 from typing import Tuple
 
+import servo_control
+
 class RobotLeg:
-    def __init__(self, upper_leg_length: int, lower_leg_length: int, hip_to_shoulder: int):
+    def __init__(self, id:int, upper_leg_length: int, lower_leg_length: int, hip_to_shoulder: int, servos: Tuple[servo_control.Servo, servo_control.Servo, servo_control.Servo]):
+        self.id = id
         self.upper_leg_length = upper_leg_length
         self.lower_leg_length = lower_leg_length
         self.hip_to_shoulder = hip_to_shoulder
+        self.servos = servos
 
     def inverseKin1D(self, z: float) -> Tuple[float, float]:
         # Ensure the triangle inequality holds
@@ -48,13 +52,28 @@ class RobotLeg:
             
         # Set gamma based on the y position relative to hip_to_shoulder
         gamma = math.atan2(y - self.hip_to_shoulder, x)  # Angle around the vertical axis
-
+        
+        # Adjusting Angles for Mirrored Legs
+        if(self.id % 2 == 0):
+            alpha = math.pi - alpha
+            beta = math.pi - beta
+            gamma = math.pi - gamma
+        
         return alpha, beta, gamma
+    
+    def move_leg(self, x: float, y: float, z: float):
+        alpha, beta, gamma = self.inverseKin3D(x, y, z)
+        if alpha is None or beta is None or gamma is None:
+            return
 
-
+        # Move the servos to the calculated angles
+        self.servos[0].move_to_angle(gamma)
+        self.servos[1].move_to_angle(beta)
+        self.servos[2].move_to_angle(alpha)
+        
 def main():
     # Define the leg dimensions
-    upper_leg_length = 136.0 #108.5
+    upper_leg_length = 108.5
     lower_leg_length = 136.0
     hip_to_shoulder = 50.0
     
