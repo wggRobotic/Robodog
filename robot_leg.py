@@ -3,7 +3,7 @@ from typing import List
 import servo_control
 
 class RobotLeg:
-    def __init__(self, id: int, upper_leg_length: int, lower_leg_length: int, hip_to_shoulder: int,
+    def __init__(self, id: int, upper_leg_length: float, lower_leg_length: float, hip_to_shoulder: float,
                  servos: List[servo_control.Servo, servo_control.Servo, servo_control.Servo], 
                  start_position: List[float, float, float]):
         self.id = id
