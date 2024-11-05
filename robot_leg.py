@@ -1,17 +1,19 @@
 import math
-from typing import Tuple
+from typing import List
 import servo_control
 
 class RobotLeg:
     def __init__(self, id: int, upper_leg_length: int, lower_leg_length: int, hip_to_shoulder: int,
-                 servos: Tuple[servo_control.Servo, servo_control.Servo, servo_control.Servo]):
+                 servos: List[servo_control.Servo, servo_control.Servo, servo_control.Servo], 
+                 start_position: List[float, float, float]):
         self.id = id
         self.upper_leg_length = upper_leg_length
         self.lower_leg_length = lower_leg_length
         self.hip_to_shoulder = hip_to_shoulder
         self.servos = servos
+        self.current_position = start_position
 
-    def inverseKin1D(self, z: float) -> Tuple[float, float]:
+    def inverseKin1D(self, z: float) -> List[float, float]:
         try:
             if z > (self.upper_leg_length + self.lower_leg_length) or z < abs(self.upper_leg_length - self.lower_leg_length):
                 raise ValueError("Invalid length for inverseKin1D: does not satisfy triangle inequality.")
@@ -32,7 +34,7 @@ class RobotLeg:
             print(f"Error in inverseKin1D: {e}")
             return None, None
 
-    def inverseKin2D(self, x: float, z: float) -> Tuple[float, float]:
+    def inverseKin2D(self, x: float, z: float) -> List[float, float]:
         try:
             distance = math.sqrt(z**2 + x**2)
             alpha, beta = self.inverseKin1D(distance)
@@ -45,7 +47,7 @@ class RobotLeg:
             print(f"Error in inverseKin2D: {e}")
             return None, None
 
-    def inverseKin3D(self, x: float, y: float, z: float) -> Tuple[float, float, float]:
+    def inverseKin3D(self, x: float, y: float, z: float) -> List[float, float, float]:
         try:
             distance = math.sqrt((y - self.hip_to_shoulder) ** 2 + z ** 2)
             alpha, beta = self.inverseKin2D(x, distance)
@@ -72,5 +74,7 @@ class RobotLeg:
             self.servos[0].move_to_angle(gamma)
             self.servos[1].move_to_angle(beta)
             self.servos[2].move_to_angle(alpha)
+            self.current_position = (x, y, z)
         except Exception as e:
             print(f"Error in move_leg for leg {self.id}: {e}")
+
