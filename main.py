@@ -7,6 +7,8 @@ def main():
     upper_leg_length = 108.5
     lower_leg_length = 136.0
     hip_to_shoulder = 50.0
+    body_width: float = 100
+    body_length: float = 100
 
     servos_from_legs = [
         [servo_control.ServoControl(1, 0, math.pi), servo_control.ServoControl(2, 0, math.pi), servo_control.ServoControl(3, 0, math.pi)],
@@ -20,8 +22,6 @@ def main():
     for i in range(1,5): 
         legs.append(RobotLeg(i, upper_leg_length, lower_leg_length, hip_to_shoulder, servos_from_legs[i-1], startPosition))
 
-    body_length: float = 100
-    body_width: float = 100
     dog = RobotDog(body_length,body_width,legs)
 
 if __name__ == "__main__":
