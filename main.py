@@ -1,35 +1,48 @@
-import math
 import servo_control
-from robot_leg import RobotLeg
 from robot_dog import RobotDog
-import sys
+import curses
+
+dog = None
+
+z: float = 200
+
+def kb_main(stdscr):
+    global dog
+    global z
+
+    stdscr.nodelay(True)
+
+    while True:
+        key = stdscr.getch()
+
+        if key == ord('+') or key == ord('-'):
+            new_z: float = z
+            if key == ord('+'):
+                new_z += 10
+            if key == ord('-'):
+                new_z -= 10
+            
+            print(new_z)
+            alpha, beta, gamma = dog.legs[0].inverseKinematics(0, 0, new_z)
+
+            print(f"{alpha} {beta} {gamma}")
+
+            if alpha != None: 
+                z = new_z
+                dog.legs[0].move(alpha, beta, gamma)
+                
+        stdscr.refresh()
+
 
 def main():
-    upper_leg_length = 108.5
-    lower_leg_length = 136.0
-    hip_to_shoulder = 50.0
-
+    global dog
     servo_control.servo_control_init()
-
-    servos_from_legs = [
-        [13, 14, 15],
-        [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0]
-    ]
-    startPosition = (10,25,30)   
-
-    legs = []
-    for i in range(4): 
-        legs.append(RobotLeg(i, upper_leg_length, lower_leg_length, hip_to_shoulder, servos_from_legs[i], startPosition))
 
     body_length: float = 100
     body_width: float = 100
-    dog = RobotDog(body_length,body_width,legs)
+    dog = RobotDog(body_length,body_width)
 
-    z = float(sys.argv[1])
-
-    dog.move_legs([[0, 0, z], [0, 0, z], [0, 0, z], [0, 0, z]], 1)
+    curses.wrapper(kb_main)
 
 if __name__ == "__main__":
     main()

@@ -2,14 +2,9 @@ import math
 from typing import List
 
 from robot_leg import RobotLeg
+import robot_constants as rc
 
 class RobotDog:
-    def __init__(self, body_length:float, body_width:float, legs: List[RobotLeg]):
-        self.body_length = body_length
-        self.body_width = body_width
-        self.legs = legs
-        self.positions = [legs[0].current_position,legs[1].current_position,legs[2].current_position,legs[3].current_position]
-
 
     def move_legs(self, targets: List[List[float]], steps: int):
         try:
@@ -20,6 +15,16 @@ class RobotDog:
                     self.positions[j] = [x * (i / steps), y * (i / steps), z * (i / steps)]
         except Exception as e:
             print(f"Error in move_legs: {e}")
+
+    def __init__(self, body_length:float, body_width:float):
+        self.body_length = body_length
+        self.body_width = body_width
+        self.legs = []
+
+        for i in range(4):
+            self.legs.append(RobotLeg(i, rc.upper_leg_length, rc.lower_leg_length, rc.hip_to_shoulder, rc.legs_initial_positions[i], rc.leg_channels[i]))
+            self.legs[i].move(*self.legs[i].inverseKinematics(*rc.legs_initial_positions[i]))
+        
 
     def turn_body_X(self, alpha: float):#roll
         delta_Y = 0.5 * self.body_width - 0.5 * self.body_width * math.cos(alpha)
