@@ -6,15 +6,12 @@ import robot_constants as rc
 
 class RobotDog:
 
-    def move_legs(self, targets: List[List[float]], steps: int):
-        try:
-            for i in range(1, steps + 1):
-                for j in range(4):
-                    x, y, z = targets[j]
-                    self.legs[j].move_leg(x * (i / steps), y * (i / steps), z * (i / steps))
-                    self.positions[j] = [x * (i / steps), y * (i / steps), z * (i / steps)]
-        except Exception as e:
-            print(f"Error in move_legs: {e}")
+    def move_legs(self, targets: List[List[float]]):
+        for i in range(4):
+            alpha, beta, gamma = self.legs[i].inverseKinematics(targets[i][0], targets[i][1], targets[i][2])
+            if alpha != None:
+                self.legs[i].move(alpha, beta, gamma)
+                self.legs[i].current_position = [targets[i][0], targets[i][1], targets[i][2]]                 
 
     def __init__(self, body_length:float, body_width:float):
         self.body_length = body_length

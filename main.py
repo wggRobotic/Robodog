@@ -4,15 +4,8 @@ import curses
 
 dog = None
 
-x: float = 0
-y: float = 0
-z: float = 200
-
 def kb_main(stdscr):
     global dog
-    global x
-    global y
-    global z
 
     stdscr.nodelay(True)
 
@@ -20,31 +13,26 @@ def kb_main(stdscr):
         key = stdscr.getch()
 
         if key == ord('+') or key == ord('-') or key == ord('w') or key == ord('s') or key == ord('a') or key == ord('d'):
-            new_x: float = x
-            new_y: float = y
-            new_z: float = z
+            new_x: float = dog.legs[0].current_position[0]
+            new_y: float = dog.legs[0].current_position[1]
+            new_z: float = dog.legs[0].current_position[2]
 
             if key == ord('+'):
-                new_z += 10
+                new_z += 5
             if key == ord('-'):
-                new_z -= 10
+                new_z -= 5
             if key == ord('w'):
-                new_x -= 10
+                new_x -= 5
             if key == ord('s'):
-                new_x += 10
+                new_x += 5
             if key == ord('a'):
-                new_y -= 10
+                new_y -= 5
             if key == ord('d'):
-                new_y += 10
+                new_y += 5
+        
+            dog.move_legs([[new_x, new_y, new_z], [0, 0, 150], [0, 0, 150], [0, 0, 150]])
+            print(dog.legs[0].current_position[0], dog.legs[0].current_position[1], dog.legs[0].current_position[2])
 
-            alpha, beta, gamma = dog.legs[0].inverseKinematics(new_x, new_y, new_z)
-
-            print(f"{alpha} {beta} {gamma}")
-
-            if alpha != None: 
-                z = new_z
-                dog.legs[0].move(alpha, beta, gamma)
-                
         stdscr.refresh()
 
 
