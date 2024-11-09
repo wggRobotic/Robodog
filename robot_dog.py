@@ -22,7 +22,7 @@ class RobotDog:
         self.legs = []
 
         for i in range(4):
-            self.legs.append(RobotLeg(i, rc.upper_leg_length, rc.lower_leg_length, rc.hip_to_shoulder, rc.legs_initial_positions[i], rc.leg_channels[i]))
+            self.legs.append(RobotLeg(i, rc.upper_leg_length, rc.lower_leg_length, rc.hip_to_shoulder, rc.leg_channels[i], rc.legs_initial_positions[i]))
             self.legs[i].move(*self.legs[i].inverseKinematics(*rc.legs_initial_positions[i]))
         
 

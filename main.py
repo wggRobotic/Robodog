@@ -4,10 +4,14 @@ import curses
 
 dog = None
 
+x: float = 0
+y: float = 0
 z: float = 200
 
 def kb_main(stdscr):
     global dog
+    global x
+    global y
     global z
 
     stdscr.nodelay(True)
@@ -15,15 +19,25 @@ def kb_main(stdscr):
     while True:
         key = stdscr.getch()
 
-        if key == ord('+') or key == ord('-'):
+        if key == ord('+') or key == ord('-') or key == ord('w') or key == ord('s') or key == ord('a') or key == ord('d'):
+            new_x: float = x
+            new_y: float = y
             new_z: float = z
+
             if key == ord('+'):
                 new_z += 10
             if key == ord('-'):
                 new_z -= 10
-            
-            print(new_z)
-            alpha, beta, gamma = dog.legs[0].inverseKinematics(0, 0, new_z)
+            if key == ord('w'):
+                new_x -= 10
+            if key == ord('s'):
+                new_x += 10
+            if key == ord('a'):
+                new_y -= 10
+            if key == ord('d'):
+                new_y += 10
+
+            alpha, beta, gamma = dog.legs[0].inverseKinematics(new_x, new_y, new_z)
 
             print(f"{alpha} {beta} {gamma}")
 
