@@ -10,9 +10,10 @@ class RobotDog:
         self.legs = legs
         self.positions = [legs[0].current_position,legs[1].current_position,legs[2].current_position,legs[3].current_position]
 
-    def move_legs(self, targets: List[List[float, float, float]], steps: int):
+
+    def move_legs(self, targets: List[List[float]], steps: int):
         try:
-            for i in range(steps):
+            for i in range(1, steps + 1):
                 for j in range(4):
                     x, y, z = targets[j]
                     self.legs[j].move_leg(x * (i / steps), y * (i / steps), z * (i / steps))
