@@ -14,8 +14,8 @@ class RobotLeg:
         self.current_position = initial_position
         self.servo_channels = servo_channels
 
-    #the angle calculation and actual moving funtions are seperated so cases where some legs are out of bounds can be handles
-    #self.current_position also has to be set manually after each movement
+    #angle calculations and actual moving functions are separated so cases where some legs are out of bounds can be handled
+    #self.current_position has to be set manually
 
     #returnes leg angles for given foot position
     def inverseKinematics(self, x: float, y: float, z: float) -> List[float]:
