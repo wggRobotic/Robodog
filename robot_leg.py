@@ -14,8 +14,16 @@ class RobotLeg:
         self.current_position = initial_position
         self.servo_channels = servo_channels
 
+    #the angle calculation and actual moving funtions are seperated so cases where some legs are out of bounds can be handles
+    #self.current_position also has to be set manually after each movement
 
+    #returnes leg angles for given foot position
     def inverseKinematics(self, x: float, y: float, z: float) -> List[float]:
+        #kinematics are oriented relative to hip joint
+        #pos x = backwards relative to  robot
+        #pos y = outwards relative to robot
+        #pos z = down
+
         #distance hip - foot on y,z plane
         d_hip_foot = math.sqrt(y**2 + z**2)
 
@@ -25,8 +33,8 @@ class RobotLeg:
             return None, None, None
         d_shoulder_foot = math.sqrt(d_hip_foot**2 - self.hip_to_shoulder**2)
 
-        #shoulder joint
-        gamma = math.atan2(y, z) + math.atan2(d_shoulder_foot, self.hip_to_shoulder) - math.pi / 2
+        #hip joint
+        hip_angle = math.atan2(y, z) + math.atan2(d_shoulder_foot, self.hip_to_shoulder) - math.pi / 2
 
         #distance shoulder - foot on plane formed by span of upper and lower leg after hip rotation
         virtual_leg_length = math.sqrt(d_shoulder_foot**2 + x**2)
@@ -43,16 +51,17 @@ class RobotLeg:
             return None, None, None
         
         #ellbow joint
-        alpha = math.acos(cos_alpha)
+        ellbow_angle = math.acos(cos_alpha)
         #shoulder joint
-        beta = math.acos(cos_beta) + math.atan2(x, d_shoulder_foot)
+        shoulder_angle = math.acos(cos_beta) + math.atan2(x, d_shoulder_foot)
 
         #TODO angle bound check
 
-        return alpha, beta, gamma
+        return ellbow_angle, shoulder_angle, hip_angle
 
-    def move(self, alpha: float, beta: float, gamma: float):
+    #moves the joints to specified angles
+    def move(self, ellbow_angle: float, shoulder_angle: float, hip_angle: float):
         #TODO angle bound check
-        servo_control.servo_move(self.servo_channels[0], alpha)
-        servo_control.servo_move(self.servo_channels[1], beta)
-        servo_control.servo_move(self.servo_channels[2], gamma)
+        servo_control.servo_move(self.servo_channels[0], ellbow_angle)
+        servo_control.servo_move(self.servo_channels[1], shoulder_angle)
+        servo_control.servo_move(self.servo_channels[2], hip_angle)

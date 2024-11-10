@@ -4,6 +4,7 @@ import curses
 
 dog = None
 
+#temporary input system
 def kb_main(stdscr):
     global dog
 

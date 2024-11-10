@@ -1,3 +1,5 @@
+#servo lines have to be uncommented on execution machine but will give errors otherwise because of obviously unavailable i2c libraries
+
 import math
 #from adafruit_servokit import ServoKit
 

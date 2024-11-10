@@ -6,6 +6,7 @@ import robot_constants as rc
 
 class RobotDog:
 
+    #mobes the legs to the specified positions relative to each hip joint
     def move_legs(self, targets: List[List[float]]):
         for i in range(4):
             alpha, beta, gamma = self.legs[i].inverseKinematics(targets[i][0], targets[i][1], targets[i][2])
