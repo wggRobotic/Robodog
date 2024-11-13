@@ -31,7 +31,7 @@ def kb_main(stdscr):
             if key == ord('d'):
                 new_y += 5
         
-            dog.move_legs([[new_x, new_y, new_z], [0, 0, 150], [0, 0, 150], [0, 0, 150]])
+            dog.move_legs([[new_x, new_y, new_z], [new_x, new_y, new_z], [new_x, new_y, new_z], [new_x, new_y, new_z]])
             print(dog.legs[0].current_position[0], dog.legs[0].current_position[1], dog.legs[0].current_position[2])
 
         stdscr.refresh()
