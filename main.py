@@ -53,7 +53,7 @@ def main():
 
     while True:
         for i in range(20):
-            z += 1
+            z += 5
             dog.move_legs([[0, robot_constants.hip_to_shoulder, z], [0, robot_constants.hip_to_shoulder, z], [0, robot_constants.hip_to_shoulder, z], [0, robot_constants.hip_to_shoulder, z]])
             time.sleep(0.1)
         
@@ -61,7 +61,7 @@ def main():
         time.sleep(3)
 
         for i in range(20):
-            z -= 1
+            z -= 5
             dog.move_legs([[0, robot_constants.hip_to_shoulder, z], [0, robot_constants.hip_to_shoulder, z], [0, robot_constants.hip_to_shoulder, z], [0, robot_constants.hip_to_shoulder, z]])
             time.sleep(0.1)
         
