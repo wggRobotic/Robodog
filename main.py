@@ -1,6 +1,8 @@
 import servo_control
 from robot_dog import RobotDog
 import curses
+import time
+import robot_constants
 
 dog = None
 
@@ -45,7 +47,26 @@ def main():
     body_width: float = 100
     dog = RobotDog(body_length,body_width)
 
-    curses.wrapper(kb_main)
+    #curses.wrapper(kb_main)
+
+    z: int = 100
+
+    while True:
+        for i in range(20):
+            z += 1
+            dog.move_legs([[0, robot_constants.hip_to_shoulder, z], [0, robot_constants.hip_to_shoulder, z], [0, robot_constants.hip_to_shoulder, z], [0, robot_constants.hip_to_shoulder, z]])
+            time.sleep(0.1)
+        
+        print("legs down")
+        time.sleep(3)
+
+        for i in range(20):
+            z -= 1
+            dog.move_legs([[0, robot_constants.hip_to_shoulder, z], [0, robot_constants.hip_to_shoulder, z], [0, robot_constants.hip_to_shoulder, z], [0, robot_constants.hip_to_shoulder, z]])
+            time.sleep(0.1)
+        
+        print("legs up")
+        time.sleep(3)
 
 if __name__ == "__main__":
     main()
