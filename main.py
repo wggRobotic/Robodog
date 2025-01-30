@@ -1,72 +1,103 @@
-import servo_control
-from robot_dog import RobotDog
-import curses
+import sys
 import time
+import curses
+import servo_control
 import robot_constants
+from robot_leg import RobotLeg
+from robot_dog import RobotDog
+from gait import Gait  # Ensure you have the Gait class implemented properly
 
 dog = None
 
-#temporary input system
+# Temporary keyboard input system for manual control
 def kb_main(stdscr):
     global dog
-
     stdscr.nodelay(True)
 
     while True:
         key = stdscr.getch()
 
-        if key == ord('+') or key == ord('-') or key == ord('w') or key == ord('s') or key == ord('a') or key == ord('d'):
-            new_x: float = dog.legs[0].current_position[0]
-            new_y: float = dog.legs[0].current_position[1]
-            new_z: float = dog.legs[0].current_position[2]
+        if key in [ord('+'), ord('-'), ord('w'), ord('s'), ord('a'), ord('d')]:
+            new_x = dog.legs[0].current_position[0]
+            new_y = dog.legs[0].current_position[1]
+            new_z = dog.legs[0].current_position[2]
 
             if key == ord('+'):
                 new_z += 5
-            if key == ord('-'):
+            elif key == ord('-'):
                 new_z -= 5
-            if key == ord('w'):
+            elif key == ord('w'):
                 new_x -= 5
-            if key == ord('s'):
+            elif key == ord('s'):
                 new_x += 5
-            if key == ord('a'):
+            elif key == ord('a'):
                 new_y -= 5
-            if key == ord('d'):
+            elif key == ord('d'):
                 new_y += 5
-        
-            dog.move_legs([[new_x, new_y, new_z], [new_x, new_y, new_z], [new_x, new_y, new_z], [new_x, new_y, new_z]])
-            print(dog.legs[0].current_position[0], dog.legs[0].current_position[1], dog.legs[0].current_position[2])
+
+            dog.move_legs([[new_x, new_y, new_z]] * 4)
+            print(f"Leg position: {new_x}, {new_y}, {new_z}")
 
         stdscr.refresh()
 
 
 def main():
     global dog
+
+    # Initialize servo control
     servo_control.servo_control_init()
 
-    body_length: float = 100
-    body_width: float = 100
-    dog = RobotDog(body_length,body_width)
+    # Define body and leg dimensions
+    body_length = 100
+    body_width = 100
+    upper_leg_length = 108.5
+    lower_leg_length = 136.0
+    hip_to_shoulder = robot_constants.hip_to_shoulder
 
-    #curses.wrapper(kb_main)
+    # Define servo channels for each leg
+    servos_from_legs = [
+        [13, 14, 15],  # Leg 1
+        [0, 0, 0],     # Leg 2
+        [0, 0, 0],     # Leg 3
+        [0, 0, 0]      # Leg 4
+    ]
 
-    z: int = 100
+    # Initial leg position
+    start_position = (10, 25, 30)
 
-    while True:
-        for i in range(20):
-            z += 5
-            dog.move_legs([[0, robot_constants.hip_to_shoulder, z], [0, robot_constants.hip_to_shoulder, z], [0, robot_constants.hip_to_shoulder, z], [0, robot_constants.hip_to_shoulder, z]])
-            time.sleep(0.1)
-        
-        print("legs down")
-        time.sleep(3)
+    # Create the robot legs
+    legs = [RobotLeg(i, upper_leg_length, lower_leg_length, hip_to_shoulder, servos_from_legs[i], start_position) for i in range(4)]
 
-        for i in range(20):
-            z -= 5
-            dog.move_legs([[0, robot_constants.hip_to_shoulder, z], [0, robot_constants.hip_to_shoulder, z], [0, robot_constants.hip_to_shoulder, z], [0, robot_constants.hip_to_shoulder, z]])
-            time.sleep(0.1)
-        
-        print("legs up")
-        time.sleep(3)
+    # Create the robot dog object
+    dog = RobotDog(body_length, body_width, legs)
+
+    # Create a Gait object for movement control
+    gait = Gait(dog)
+
+    # Read optional z-position from command-line arguments
+    if len(sys.argv) > 1:
+        z = float(sys.argv[1])
+        dog.move_legs([[0, 0, z]] * 4, 1)
+
+    # Movement examples
+    print("Starting gait movements...")
+    gait.walk(30, 20, 0.1)  # Walk with step length 30, step height 20, speed 0.1s per step
+    time.sleep(2)
+    
+    gait.trot(30, 20, 0.1)  # Trot with step length 30, step height 20, speed 0.1s per step
+    time.sleep(2)
+
+    gait.pace(30, 20, 0.1)  # Pace with step length 30, step height 20, speed 0.1s per step
+    time.sleep(2)
+
+    gait.turn(90, 30, 20, 0.1)  # Turn by 90 degrees while walking
+    time.sleep(2)
+
+    print("Finished all gaits.")
+
+    # Uncomment to enable keyboard input for manual control
+    # curses.wrapper(kb_main)
+
 
 if __name__ == "__main__":
     main()
