@@ -5,7 +5,7 @@ import math
 
 kit = None
 
-servo_base_positions = [
+servo_rest_positions = [
     8200, 3000, 4200, 6666,
     2600, 6700, 5400, 6666, 
     6300, 3600, 4600, 6666, 
@@ -26,4 +26,4 @@ def servo_control_init():
 
 def servo_move(channel: int, angle: float):
     1==1
-    #kit.servo[channel]._pwm_out.duty_cycle = int(servo_base_positions[channel] + servo_ranges[channel] * angle * 2 / math.pi)
+    #kit.servo[channel]._pwm_out.duty_cycle = int(servo_rest_positions[channel] + servo_ranges[channel] * angle * 2 / math.pi)
