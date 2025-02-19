@@ -42,6 +42,8 @@ def kb_main(stdscr):
 
 
 def main():
+    #i sneaked in :)
+    servo_control.init()
     global dog
 
     # Initialize servo control
