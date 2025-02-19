@@ -74,14 +74,14 @@ def servo_move(channel: int, angle: float):
     # Set goal position
     sts_comm_result, sts_error = packetHandler2.write2ByteTxRx(port_handler2, channel, STS_GOAL_POSITION_L, int(servo_position))
     if sts_comm_result != COMM_SUCCESS:
-        print("%s" % packetHandler.getTxRxResult(sts_comm_result))
+        print("%s" % packetHandler2.getTxRxResult(sts_comm_result))
     elif sts_error != 0:
-        print("%s" % packetHandler.getRxPacketError(sts_error))
+        print("%s" % packetHandler2.getRxPacketError(sts_error))
 
     # Syncwrite goal position
-    sts_comm_result = packetHandler.groupSyncWrite.txPacket()
+    sts_comm_result = packetHandler2.groupSyncWrite.txPacket()
     if sts_comm_result != COMM_SUCCESS:
-        print("%s" % packetHandler.getTxRxResult(sts_comm_result))
+        print("%s" % packetHandler2.getTxRxResult(sts_comm_result))
 
     # Clear syncwrite parameter storage
-    packetHandler.groupSyncWrite.clearParam()
+    packetHandler2.groupSyncWrite.clearParam()
