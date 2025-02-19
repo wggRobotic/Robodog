@@ -2,87 +2,63 @@ import math
 from STservo_sdk import *  # Uses STServo SDK library
 import robot_constants as rc
 
-def init():
-    # Initialize PortHandler instance
-    # Set the port path
-    # Get methods and members of PortHandlerLinux or PortHandlerWindows
-    port_handler1 = PortHandler(rc.DEVICENAME1)
-    port_handler2 = PortHandler(rc.DEVICENAME2)
+class ServoControl:
+    def __init__(self):
+        # Initialize PortHandler instances
+        self.port_handler1 = PortHandler(rc.DEVICENAME1)
+        self.port_handler2 = PortHandler(rc.DEVICENAME2)
 
-    # Initialize PacketHandler instance
-    # Get methods and members of Protocol
-    packetHandler1 = sts(port_handler1)
-    packetHandler2 = sts(port_handler2)
+        # Initialize PacketHandler instances
+        self.packetHandler1 = sts(self.port_handler1)
+        self.packetHandler2 = sts(self.port_handler2)
 
-    # Open port
-    if port_handler1.openPort():
-        print("Succeeded to open the port")
-    else:
-        print("Failed to open the port")
+        # Open ports
+        if self.port_handler1.openPort():
+            print("Succeeded to open port 1")
+        else:
+            print("Failed to open port 1")
 
+        if self.port_handler2.openPort():
+            print("Succeeded to open port 2")
+        else:
+            print("Failed to open port 2")
 
-    if port_handler2.openPort():
-        print("Succeeded to open the port")
-    else:
-        print("Failed to open the port")
+        # Set baud rates
+        if self.port_handler1.setBaudRate(rc.BAUDRATE1):
+            print("Succeeded to set baudrate 1")
+        else:
+            print("Failed to set baudrate 1")
 
+        if self.port_handler2.setBaudRate(rc.BAUDRATE2):
+            print("Succeeded to set baudrate 2")
+        else:
+            print("Failed to set baudrate 2")
 
-    # Set port baudrate
-    if port_handler1.setBaudRate(rc.BAUDRATE1):
-        print("Succeeded to set baudrate")
-    else:
-        print("Failed to set baudrate")
+    def servo_in(self, channel: int, angle: float):
+        if channel <= 6:
+            self.servo_move(self.packetHandler1, self.port_handler1, channel, angle)
+        else:
+            self.servo_move(self.packetHandler2, self.port_handler2, channel, angle)
 
-    if port_handler2.setBaudRate(rc.BAUDRATE2):
-        print("Succeeded to set baudrate")
-    else:
-        print("Failed to set baudrate")
+    @staticmethod
+    def map_value(x, in_min, in_max, out_min, out_max):
+        return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
-def servo_in(channel: int, angle: float):
-    if channel <= 5:
-        servo_move1(channel, angle)
-    if channel >= 6:
-        servo_move2(channel, angle)
+    def servo_move(self, packetHandler, port_handler, channel, angle):
+        # Map angle to servo position
+        servo_position = self.map_value(angle, 0, math.pi*2, rc.STS_MINIMUM_POSITION_VALUE, rc.STS_MAXIMUM_POSITION_VALUE)
 
-def map_value(x, in_min, in_max, out_min, out_max):
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+        # Set goal position
+        sts_comm_result, sts_error = packetHandler.write2ByteTxRx(port_handler, channel, STS_GOAL_POSITION_L, int(servo_position))
+        if sts_comm_result != COMM_SUCCESS:
+            print("%s" % packetHandler.getTxRxResult(sts_comm_result))
+        elif sts_error != 0:
+            print("%s" % packetHandler.getRxPacketError(sts_error))
 
-def servo_move1(channel, angle):
+        # Syncwrite goal position
+        sts_comm_result = packetHandler.groupSyncWrite.txPacket()
+        if sts_comm_result != COMM_SUCCESS:
+            print("%s" % packetHandler.getTxRxResult(sts_comm_result))
 
-    # Map angle to servo position
-    servo_position = map_value(angle, 0, math.pi*2, rc.STS_MINIMUM_POSITION_VALUE, rc.STS_MAXIMUM_POSITION_VALUE)
-
-    # Set goal position
-    sts_comm_result, sts_error = packetHandler1.write2ByteTxRx(port_handler1, channel, STS_GOAL_POSITION_L, int(servo_position))
-    if sts_comm_result != COMM_SUCCESS:
-        print("%s" % packetHandler1.getTxRxResult(sts_comm_result))
-    elif sts_error != 0:
-        print("%s" % packetHandler1.getRxPacketError(sts_error))
-
-    # Syncwrite goal position
-    sts_comm_result = packetHandler1.groupSyncWrite.txPacket()
-    if sts_comm_result != COMM_SUCCESS:
-        print("%s" % packetHandler1.getTxRxResult(sts_comm_result))
-
-    # Clear syncwrite parameter storage
-    packetHandler1.groupSyncWrite.clearParam()
-
-def servo_move2(channel, angle):
-
-    # Map angle to servo position
-    servo_position = map_value(angle, 0, math.pi*2, rc.STS_MINIMUM_POSITION_VALUE, rc.STS_MAXIMUM_POSITION_VALUE)
-
-    # Set goal position
-    sts_comm_result, sts_error = packetHandler2.write2ByteTxRx(port_handler2, channel, STS_GOAL_POSITION_L, int(servo_position))
-    if sts_comm_result != COMM_SUCCESS:
-        print("%s" % packetHandler2.getTxRxResult(sts_comm_result))
-    elif sts_error != 0:
-        print("%s" % packetHandler2.getRxPacketError(sts_error))
-
-    # Syncwrite goal position
-    sts_comm_result = packetHandler2.groupSyncWrite.txPacket()
-    if sts_comm_result != COMM_SUCCESS:
-        print("%s" % packetHandler2.getTxRxResult(sts_comm_result))
-
-    # Clear syncwrite parameter storage
-    packetHandler2.groupSyncWrite.clearParam()
+        # Clear syncwrite parameter storage
+        packetHandler.groupSyncWrite.clearParam()
