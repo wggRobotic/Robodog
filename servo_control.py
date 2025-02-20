@@ -34,31 +34,24 @@ class ServoControl:
         else:
             print("Failed to set baudrate 2")
 
-    def servo_in(self, channel: int, angle: float):
-        if channel <= 6:
-            self.servo_move(self.packetHandler1, self.port_handler1, channel, angle)
+    def servo_in(self, id: int, angle: float):
+        if id <= 6:
+            self.servo_move(self.packetHandler1, id, angle)
         else:
-            self.servo_move(self.packetHandler2, self.port_handler2, channel, angle)
+            self.servo_move(self.packetHandler2, id, angle)
 
     @staticmethod
     def map_value(x, in_min, in_max, out_min, out_max):
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
-    def servo_move(self, packetHandler, port_handler, channel, angle):
+    def servo_move(self, packetHandler, id, angle):
         # Map angle to servo position
-        servo_position = self.map_value(angle, 0, math.pi*2, rc.STS_MINIMUM_POSITION_VALUE, rc.STS_MAXIMUM_POSITION_VALUE)
+        servo_position = int(self.map_value(angle, 0, math.pi*2, rc.STS_MINIMUM_POSITION_VALUE, rc.STS_MAXIMUM_POSITION_VALUE))
 
         # Set goal position
-        sts_comm_result, sts_error = packetHandler.write2ByteTxRx(port_handler, channel, STS_GOAL_POSITION_L, int(servo_position))
-        if sts_comm_result != COMM_SUCCESS:
-            print("%s" % packetHandler.getTxRxResult(sts_comm_result))
-        elif sts_error != 0:
-            print("%s" % packetHandler.getRxPacketError(sts_error))
-
-        # Syncwrite goal position
-        sts_comm_result = packetHandler.groupSyncWrite.txPacket()
-        if sts_comm_result != COMM_SUCCESS:
-            print("%s" % packetHandler.getTxRxResult(sts_comm_result))
+        sts_comm_result = packetHandler.SyncWritePosEx(id,servo_position,rc.STS_MOVING_SPEED,rc.STS_MOVING_ACC)  
+        if sts_comm_result != True:
+            print("[ID:%03d] groupSyncWrite addparam failed" % servo_position)
 
         # Clear syncwrite parameter storage
         packetHandler.groupSyncWrite.clearParam()
