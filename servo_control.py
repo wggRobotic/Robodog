@@ -49,7 +49,7 @@ class ServoControl:
         servo_position = int(self.map_value(angle, 0, math.pi*2, STS_MINIMUM_POSITION_VALUE, STS_MAXIMUM_POSITION_VALUE))
 
         # Set goal position
-        sts_comm_result = packetHandler.SyncWritePosEx(id,servo_position,STS_MOVING_SPEED,STS_MOVING_ACC)  
+        sts_comm_result = packetHandler.SyncWritePosEx(id,servo_position + legs_offset[id],STS_MOVING_SPEED,STS_MOVING_ACC)  
         if sts_comm_result != True:
             print("[ID:%03d] groupSyncWrite addparam failed" % servo_position)
 
