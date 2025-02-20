@@ -35,21 +35,25 @@ class ServoControl:
             print("Failed to set baudrate 2")
 
     def servo_in(self, id: int, angle: float):
-        if id <= 6:
-            self.servo_move(self.packetHandler1, id, angle)
+        if id < 6:
+            board = 1
+            self.servo_move(self.packetHandler1, id, angle + legs_offset[id], board)
         else:
-            self.servo_move(self.packetHandler2, id, angle)
+            board = 2
+            self.servo_move(self.packetHandler2, id - 6, angle + legs_offset[id], board)
 
     @staticmethod
     def map_value(x, in_min, in_max, out_min, out_max):
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
-    def servo_move(self, packetHandler: sts, id, angle):
+    def servo_move(self, packetHandler: sts, id, angle , board):
         # Map angle to servo position
-        servo_position = int(self.map_value(angle, 0, math.pi*2, STS_MINIMUM_POSITION_VALUE, STS_MAXIMUM_POSITION_VALUE))
+        min_pos = legs_min_value[id if board == 1 else id + 6]
+        max_pos = legs_max_value[id if board == 1 else id + 6]
+        servo_position = int(self.map_value(angle, 0, math.pi*2, min_pos, max_pos))
 
         # Set goal position
-        sts_comm_result = packetHandler.SyncWritePosEx(id,servo_position + legs_offset[id],STS_MOVING_SPEED,STS_MOVING_ACC)  
+        sts_comm_result = packetHandler.SyncWritePosEx(id,servo_position,STS_MOVING_SPEED,STS_MOVING_ACC)  
         if sts_comm_result != True:
             print("[ID:%03d] groupSyncWrite addparam failed" % servo_position)
 
