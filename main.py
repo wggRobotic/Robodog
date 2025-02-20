@@ -1,11 +1,11 @@
 import sys
 import time
 import curses
-import servo_control
-import robot_constants
+from servo_control import ServoControl
+import robot_constants as robot_constants
 from robot_leg import RobotLeg
 from robot_dog import RobotDog
-from gait import Gait  # Ensure you have the Gait class implemented properly
+#from gait import Gait 
 
 dog = None
 
@@ -43,11 +43,11 @@ def kb_main(stdscr):
 
 def main():
     #i sneaked in :)
-    servo_control.init()
+    ServoControl
     global dog
 
     # Initialize servo control
-    servo_control.servo_control_init()
+    ServoControl()
 
     # Define body and leg dimensions
     body_length = 100
@@ -74,28 +74,12 @@ def main():
     dog = RobotDog(body_length, body_width, legs)
 
     # Create a Gait object for movement control
-    gait = Gait(dog)
+    #gait = Gait(dog)
 
     # Read optional z-position from command-line arguments
     if len(sys.argv) > 1:
         z = float(sys.argv[1])
         dog.move_legs([[0, 0, z]] * 4, 1)
-
-    # Movement examples
-    print("Starting gait movements...")
-    gait.walk(30, 20, 0.1)  # Walk with step length 30, step height 20, speed 0.1s per step
-    time.sleep(2)
-    
-    gait.trot(30, 20, 0.1)  # Trot with step length 30, step height 20, speed 0.1s per step
-    time.sleep(2)
-
-    gait.pace(30, 20, 0.1)  # Pace with step length 30, step height 20, speed 0.1s per step
-    time.sleep(2)
-
-    gait.turn(90, 30, 20, 0.1)  # Turn by 90 degrees while walking
-    time.sleep(2)
-
-    print("Finished all gaits.")
 
     # Uncomment to enable keyboard input for manual control
     # curses.wrapper(kb_main)

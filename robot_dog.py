@@ -2,7 +2,7 @@ import math
 from typing import List
 
 from robot_leg import RobotLeg
-import robot_constants as rc
+from robot_constants import *
 
 class RobotDog:
 
@@ -12,8 +12,8 @@ class RobotDog:
         self.legs = []
 
         for i in range(4):
-            self.legs.append(RobotLeg(i, rc.upper_leg_length, rc.lower_leg_length, rc.hip_to_shoulder, rc.leg_channels[i], rc.legs_initial_positions[i]))
-            self.legs[i].move(*self.legs[i].inverseKinematics(*rc.legs_initial_positions[i]))
+            self.legs.append(RobotLeg(i, upper_leg_length, lower_leg_length, hip_to_shoulder, leg_ids[i], legs_initial_positions[i]))
+            self.legs[i].move(*self.legs[i].inverseKinematics(*legs_initial_positions[i]))
         
     # Moves the legs to the specified positions relative to each hip joint
     def move_legs(self, targets: List[List[float]]):

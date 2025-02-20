@@ -1,7 +1,7 @@
 import math
 from typing import List
 
-import servo_control
+from servo_control import*
 
 class RobotLeg:
     def __init__(self, id: int, upper_leg_length: float, lower_leg_length: float, hip_to_shoulder: float,
@@ -62,6 +62,6 @@ class RobotLeg:
     #moves the joints to specified angles
     def move(self, ellbow_angle: float, shoulder_angle: float, hip_angle: float):
         #TODO angle bound check
-        servo_control.servo_in(self.servo_channels[0], ellbow_angle)
-        servo_control.servo_in(self.servo_channels[1], shoulder_angle)
-        servo_control.servo_in(self.servo_channels[2], hip_angle)
+        ServoControl.servo_in(self.servo_channels[0], ellbow_angle)
+        ServoControl.servo_in(self.servo_channels[1], shoulder_angle)
+        ServoControl.servo_in(self.servo_channels[2], hip_angle)
