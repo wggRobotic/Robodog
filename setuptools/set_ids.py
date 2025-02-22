@@ -3,7 +3,7 @@ from STservo_sdk import *
 
 # Default setting
 BAUDRATE                    = 1000000           # STServo default baudrate : 1000000
-DEVICENAME                  = 'COM1'    # Check which port is being used on your controller
+DEVICENAME                  = 'COM11'    # Check which port is being used on your controller
                                                 # ex) Windows: "COM1"   Linux: "/dev/ttyUSB0" Mac: "/dev/tty.usbserial-*"
 
 STS_MINIMUM_POSITION_VALUE  = 0                 # STServo will rotate between this value
@@ -42,7 +42,9 @@ else:
 NEW_SERVO_ID = input("NEW_SERVO_ID: ")
 OLD_SERVO_ID = 1    
 
+packetHandler.unLockEprom()
 sts_comm_result, sts_error = packetHandler.write1ByteTxRx(portHandler, OLD_SERVO_ID, STS_ID, NEW_SERVO_ID)
+packetHandler.LockEprom()
 
 if sts_comm_result != COMM_SUCCESS:
     print("Failed to change ID: %s" % packetHandler.getTxRxResult(sts_comm_result))
