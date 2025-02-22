@@ -1,7 +1,7 @@
 import math
 from typing import List
 
-from servo_control import*
+from idefix.servo_control import*
 
 class RobotLeg:
     def __init__(self, id: int, upper_leg_length: float, lower_leg_length: float, hip_to_shoulder: float,

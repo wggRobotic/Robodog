@@ -2,7 +2,7 @@ import math
 from time import sleep
 from typing import List
 
-from robot_dog import RobotDog
+from idefix.robot_dog import RobotDog
 
 class Gait:
     def __init__(self, dog: 'RobotDog'):

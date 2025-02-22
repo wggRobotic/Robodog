@@ -1,16 +1,14 @@
 import math
 from STservo_sdk import *  # Uses STServo SDK library
-from robot_constants import *
+from idefix.robot_constants import *
 
 class ServoControl:
     def __init__(self):
         # Initialize PortHandler instances
-        self.port_handler1 = PortHandler(DEVICENAME1)
-        self.port_handler2 = PortHandler(DEVICENAME2)
+        self.port_handler1 = PortHandler(DEVICENAME1) ; self.port_handler2 = PortHandler(DEVICENAME2)
 
         # Initialize PacketHandler instances
-        self.packetHandler1 = sts(self.port_handler1)
-        self.packetHandler2 = sts(self.port_handler2)
+        self.packetHandler1 = sts(self.port_handler1) ; self.packetHandler2 = sts(self.port_handler2)
 
         # Open ports
         if self.port_handler1.openPort():
@@ -45,11 +43,11 @@ class ServoControl:
     @staticmethod
     def map_value(x, in_min, in_max, out_min, out_max):
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
-
+    
     def servo_move(self, packetHandler: sts, id, angle , board):
-        # Map angle to servo position
         min_pos = legs_min_value[id if board == 1 else id + 6]
         max_pos = legs_max_value[id if board == 1 else id + 6]
+        # Map angle to servo position
         servo_position = int(self.map_value(angle, 0, math.pi*2, min_pos, max_pos))
 
         # Set goal position
@@ -59,3 +57,5 @@ class ServoControl:
 
         # Clear syncwrite parameter storage
         packetHandler.groupSyncWrite.clearParam()
+
+

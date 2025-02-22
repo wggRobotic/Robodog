@@ -1,8 +1,8 @@
 import math
 from typing import List
 
-from robot_leg import RobotLeg
-from robot_constants import *
+from idefix.robot_leg import RobotLeg
+from idefix.robot_constants import *
 
 class RobotDog:
 

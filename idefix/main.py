@@ -1,10 +1,10 @@
 import sys
 import time
 import curses
-from servo_control import ServoControl
-import robot_constants as robot_constants
-from robot_leg import RobotLeg
-from robot_dog import RobotDog
+from idefix.servo_control import ServoControl
+from idefix.robot_leg import RobotLeg
+from idefix.robot_dog import RobotDog
+from idefix.robot_constants import * 
 #from gait import Gait 
 
 dog = None
@@ -48,13 +48,6 @@ def main():
 
     # Initialize servo control
     ServoControl()
-
-    # Define body and leg dimensions
-    body_length = 100
-    body_width = 100
-    upper_leg_length = 108.5
-    lower_leg_length = 136.0
-    hip_to_shoulder = robot_constants.hip_to_shoulder
 
     # Define servo channels for each leg
     servos_from_legs = [
