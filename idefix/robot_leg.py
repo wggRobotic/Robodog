@@ -5,14 +5,14 @@ from idefix.servo_control import*
 
 class RobotLeg:
     def __init__(self, id: int, upper_leg_length: float, lower_leg_length: float, hip_to_shoulder: float,
-                 servo_channels: List[int],
+                 servo_ids: List[int],
                  initial_position: List[float]):
         self.id = id
         self.upper_leg_length = upper_leg_length
         self.lower_leg_length = lower_leg_length
         self.hip_to_shoulder = hip_to_shoulder
         self.current_position = initial_position
-        self.servo_channels = servo_channels
+        self.servo_ids = servo_ids
 
     #angle calculations and actual moving functions are separated so cases where some legs are out of bounds can be handled
     #self.current_position has to be set manually
@@ -62,6 +62,7 @@ class RobotLeg:
     #moves the joints to specified angles
     def move(self, ellbow_angle: float, shoulder_angle: float, hip_angle: float):
         #TODO angle bound check
-        ServoControl.servo_in(self.servo_channels[0], ellbow_angle)
-        ServoControl.servo_in(self.servo_channels[1], shoulder_angle)
-        ServoControl.servo_in(self.servo_channels[2], hip_angle)
+        ServoControl.set_pos(self.servo_ids[0], ellbow_angle)
+        ServoControl.set_pos(self.servo_ids[1], shoulder_angle)
+        ServoControl.set_pos(self.servo_ids[2], hip_angle)
+        ServoControl.move_positions()
