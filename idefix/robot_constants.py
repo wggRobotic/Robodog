@@ -1,4 +1,11 @@
-verbosity = True
+
+BAUDRATE = 1000000
+DEVICENAME_FRONT = '/dev/board_front'
+DEVICENAME_BACK = '/dev/board_back'
+
+STS_MOVING_SPEED = 2400
+STS_MOVING_ACC = 50
+
 
 upper_leg_length = 108.5
 lower_leg_length = 136.0
@@ -10,10 +17,10 @@ upper_leg_length = 108.5
 lower_leg_length = 136.0
 
 leg_ids = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [0, 1, 2],
-    [3, 4, 5],
+    [1, 2, 3],
+    [6, 5, 4],
+    [7, 8, 9],
+    [12, 11, 10],
 ]
 
 legs_initial_positions = [
@@ -23,34 +30,18 @@ legs_initial_positions = [
     [0.0, 0.0, 150.0],
 ]
 
-legs_offset = [
+
+servos_min_value = [
     0, 0, 0,
     0, 0, 0,
     0, 0, 0,
     0, 0, 0,
 ]
 
-legs_min_value = [
-    0, 0, 0,
-    0, 0, 0,
-    0, 0, 0,
-    0, 0, 0,
-]
-
-legs_max_value = [
+servos_max_value = [
     4095, 4095, 4095,
     4095, 4095, 4095,
     4095, 4095, 4095,
     4095, 4095, 4095,
 ]
 
-
-BAUDRATE1 = 1000000
-BAUDRATE2 = 1000000
-DEVICENAME1 = "COM11"
-DEVICENAME2 = "COM12"
-
-STS_MINIMUM_POSITION_VALUE = 0
-STS_MAXIMUM_POSITION_VALUE = 4095
-STS_MOVING_SPEED = 2400
-STS_MOVING_ACC = 50
