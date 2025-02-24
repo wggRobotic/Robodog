@@ -23,28 +23,45 @@ from STservo_sdk import *  # Uses STServo SDK library
 
 # Default settings
 BAUDRATE = 1000000
-DEVICENAME = '/dev/board_back'  # Adjust for your system
 STS_MOVING_SPEED = 2400  # Servo speed
 STS_MOVING_ACC = 50  # Servo acceleration
 
+DEVICENAMEF = '/dev/board_front'
+DEVICENAMEB = '/dev/board_back'
+
 # Initialize PortHandler instance
-portHandler = PortHandler(DEVICENAME)
-
+portHandlerb = PortHandler(DEVICENAMEB)
+portHandlerf = PortHandler(DEVICENAMEF)
 # Initialize PacketHandler instance
-packetHandler = sts(portHandler)
-
+packetHandlerf = sts(portHandlerf)
+packetHandlerb = sts(portHandlerb)
 # Open port
-if not portHandler.openPort():
+if not portHandlerf.openPort():
     print("Failed to open the port")
     sys.exit()
 
+if not portHandlerb.openPort():
+    print("Failed to open the port")
+    sys.exit()
+    
 # Set baudrate
-if not portHandler.setBaudRate(BAUDRATE):
+if not portHandlerb.setBaudRate(BAUDRATE):
+    print("Failed to set baudrate")
+    sys.exit()
+    
+# Set baudrate
+if not portHandlerf.setBaudRate(BAUDRATE):
     print("Failed to set baudrate")
     sys.exit()
 
 while True:
     servo_id = input("Enter Servo ID (or 'q' to quit): ")
+    if int(servo_id) <= 6:
+        packetHandler = packetHandlerf
+    else:
+        packetHandler = packetHandlerb
+        
+        
     if servo_id.lower() == 'q':
         break
 
@@ -53,23 +70,22 @@ while True:
     except ValueError:
         print("Invalid input. Please enter a number.")
         continue
-
+        
     # Read present position
     position, result, error = packetHandler.ReadPos(servo_id)
     if result == COMM_SUCCESS:
         print(f"Servo ID {servo_id} Current Position: {position}")
 
         # Move 10 units forward
-        new_position = position + 10
-        packetHandler.WritePosEx(servo_id, new_position, STS_MOVING_SPEED, STS_MOVING_ACC)
-        time.sleep(1)  # Wait for movement
-
-        # Move back to original position
-        packetHandler.WritePosEx(servo_id, position, STS_MOVING_SPEED, STS_MOVING_ACC)
-        time.sleep(1)  # Wait for movement
+        print(f"Position at the moment:{position}")
+        new_position = int(input("New Position:"))
+        print(position)
+        packetHandler.WritePosEx(servo_id, new_position, -2400, STS_ACC)
+        time.sleep(2.5)  # Wait for movement
 
     else:
         print(f"Error reading position: {packetHandler.getTxRxResult(result)}")
 
 # Close port
-portHandler.closePort()
+portHandlerf.closePort()
+portHandlerb.closePort()

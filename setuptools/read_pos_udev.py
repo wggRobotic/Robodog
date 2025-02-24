@@ -1,3 +1,4 @@
+#!/bin/python3
 import sys
 import os
 
@@ -23,6 +24,7 @@ from STservo_sdk import *  # Uses STServo SDK library
 # Default setting
 BAUDRATE = 1000000
 DEVICENAME = '/dev/board_front'  # Adjust this for your system
+#DEVICENAME = '/dev/serial/by-id/usb-1a86_USB_Single_Serial_58FD016753-if00'  # Adjust this for your system
 
 # Initialize PortHandler instance
 portHandler = PortHandler(DEVICENAME)
