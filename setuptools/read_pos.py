@@ -22,21 +22,31 @@ from STservo_sdk import *  # Uses STServo SDK library
 
 # Default setting
 BAUDRATE = 1000000
-DEVICENAME = '/dev/board_front'  # Adjust this for your system
+DEVICENAMEF = '/dev/board_front'
+DEVICENAMEB = '/dev/board_back'
 
 # Initialize PortHandler instance
-portHandler = PortHandler(DEVICENAME)
-
+portHandlerb = PortHandler(DEVICENAMEB)
+portHandlerf = PortHandler(DEVICENAMEF)
 # Initialize PacketHandler instance
-packetHandler = sts(portHandler)
-
+packetHandlerf = sts(portHandlerf)
+packetHandlerb = sts(portHandlerb)
 # Open port
-if not portHandler.openPort():
+if not portHandlerf.openPort():
     print("Failed to open the port")
     sys.exit()
 
+if not portHandlerb.openPort():
+    print("Failed to open the port")
+    sys.exit()
+    
 # Set baudrate
-if not portHandler.setBaudRate(BAUDRATE):
+if not portHandlerb.setBaudRate(BAUDRATE):
+    print("Failed to set baudrate")
+    sys.exit()
+    
+# Set baudrate
+if not portHandlerf.setBaudRate(BAUDRATE):
     print("Failed to set baudrate")
     sys.exit()
 
@@ -50,7 +60,11 @@ while True:
     except ValueError:
         print("Invalid input. Please enter a number.")
         continue
-
+    
+    if int(servo_id) <= 6:
+        packetHandler = packetHandlerf
+    else:
+        packetHandler = packetHandlerb
     # Read present position
     position, result, error = packetHandler.ReadPos(servo_id)
 

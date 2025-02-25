@@ -3,19 +3,50 @@ from typing import List
 
 from idefix.servo_control import*
 
+
 class RobotLeg:
     def __init__(self, id: int, upper_leg_length: float, lower_leg_length: float, hip_to_shoulder: float,
                  servo_ids: List[int],
-                 initial_position: List[float]):
+                 initial_position: List[float],sc: ServoControl):
         self.id = id
         self.upper_leg_length = upper_leg_length
         self.lower_leg_length = lower_leg_length
         self.hip_to_shoulder = hip_to_shoulder
         self.current_position = initial_position
         self.servo_ids = servo_ids
+        self.sc = sc
 
     #angle calculations and actual moving functions are separated so cases where some legs are out of bounds can be handled
     #self.current_position has to be set manually
+    
+    def inverseKin1(self, z: float) -> List[float]:
+        
+        v1 = (self.upper_leg_length**2 + self.lower_leg_length**2 - z**2) / (2 * self.upper_leg_length * self.lower_leg_length)
+    
+        alpha = math.acos(v1)
+        v2 = (self.upper_leg_length**2 - self.lower_leg_length**2 +z**2)/(2*self.upper_leg_length*z)
+        beta = math.acos(v2)
+        
+        return [alpha,beta]
+    
+    def inverseKin2(self, x:float , z:float):
+        shoulder_to_foot = math.sqrt(x**2 +z**2)
+        delta_beta = math.atan2(x,z)
+        print(delta_beta/math.pi * 180)
+        alpha, beta = self.inverseKin1(shoulder_to_foot)
+        beta = beta - delta_beta
+        return alpha,beta
+    
+    def inverseKin3(self, x:float , y:float, z:float) -> List[float]:
+        shoulder_to_foot = math.sqrt(z**2+y**2 - self.hip_to_shoulder**2)
+        
+        gamma1 = math.atan2(y,z)
+        gamm2 = math.atan2(shoulder_to_foot,self.hip_to_shoulder)
+        alpha, beta = self.inverseKin2(x,shoulder_to_foot)
+        gamma = gamma1 + gamm2
+        
+        return alpha, beta, gamma
+    
 
     #returnes leg angles for given foot position
     def inverseKinematics(self, x: float, y: float, z: float) -> List[float]:
@@ -62,7 +93,7 @@ class RobotLeg:
     #moves the joints to specified angles
     def move(self, ellbow_angle: float, shoulder_angle: float, hip_angle: float):
         #TODO angle bound check
-        ServoControl.set_pos(self.servo_ids[0], ellbow_angle)
-        ServoControl.set_pos(self.servo_ids[1], shoulder_angle)
-        ServoControl.set_pos(self.servo_ids[2], hip_angle)
-        ServoControl.move_positions()
+        self.sc.set_pos(self.servo_ids[0], ellbow_angle)
+        self.sc.set_pos(self.servo_ids[1], shoulder_angle)
+        self.sc.set_pos(self.servo_ids[2], hip_angle)
+        self.sc.move_positions()

@@ -1,82 +1,36 @@
 import sys
 import time
 import curses
+import math
+sys.path.append("..")
 from idefix.servo_control import ServoControl
 from idefix.robot_leg import RobotLeg
 from idefix.robot_dog import RobotDog
 from idefix.robot_constants import * 
-#from gait import Gait 
-
-dog = None
-
-# Temporary keyboard input system for manual control
-def kb_main(stdscr):
-    global dog
-    stdscr.nodelay(True)
-
-    while True:
-        key = stdscr.getch()
-
-        if key in [ord('+'), ord('-'), ord('w'), ord('s'), ord('a'), ord('d')]:
-            new_x = dog.legs[0].current_position[0]
-            new_y = dog.legs[0].current_position[1]
-            new_z = dog.legs[0].current_position[2]
-
-            if key == ord('+'):
-                new_z += 5
-            elif key == ord('-'):
-                new_z -= 5
-            elif key == ord('w'):
-                new_x -= 5
-            elif key == ord('s'):
-                new_x += 5
-            elif key == ord('a'):
-                new_y -= 5
-            elif key == ord('d'):
-                new_y += 5
-
-            dog.move_legs([[new_x, new_y, new_z]] * 4)
-            print(f"Leg position: {new_x}, {new_y}, {new_z}")
-
-        stdscr.refresh()
 
 
 def main():
     #i sneaked in :)
-    ServoControl
-    global dog
+    sc = ServoControl()
+    leg1 = RobotLeg(0,UPPER_LEG_LENGTH,LOWER_LEG_LENGTH,HIP_TO_SHOULDER,LEG_IDS[0],LEGS_INTIAL_VALUES[0],sc)
+    leg2 = RobotLeg(0,UPPER_LEG_LENGTH,LOWER_LEG_LENGTH,HIP_TO_SHOULDER,LEG_IDS[2],LEGS_INTIAL_VALUES[2],sc)
+    
+    
+    # alpha, beta = leg1.inverseKin1(140.0)
+    # leg1.move(2*math.pi - alpha, math.pi + math.pi/2 -beta, math.pi)
+    
+    # alpha, beta = leg1.inverseKin2(150.0,0.0)
+    # leg1.move(2*math.pi - alpha, math.pi + math.pi/2 -beta, math.pi)
+    
+    alpha1, beta1, gamma1 = leg1.inverseKin3(10.0,HIP_TO_SHOULDER + 100.0,100.0)
+    leg1.move(2*math.pi - alpha1, math.pi + math.pi/2 -beta1,math.pi+math.pi/2 -gamma1)
 
-    # Initialize servo control
-    ServoControl()
-
-    # Define servo channels for each leg
-    servos_from_legs = [
-        [13, 14, 15],  # Leg 1
-        [0, 0, 0],     # Leg 2
-        [0, 0, 0],     # Leg 3
-        [0, 0, 0]      # Leg 4
-    ]
-
-    # Initial leg position
-    start_position = (10, 25, 30)
-
-    # Create the robot legs
-    legs = [RobotLeg(i, upper_leg_length, lower_leg_length, hip_to_shoulder, servos_from_legs[i], start_position) for i in range(4)]
-
-    # Create the robot dog object
-    dog = RobotDog(body_length, body_width, legs)
-
-    # Create a Gait object for movement control
-    #gait = Gait(dog)
-
-    # Read optional z-position from command-line arguments
-    if len(sys.argv) > 1:
-        z = float(sys.argv[1])
-        dog.move_legs([[0, 0, z]] * 4, 1)
-
-    # Uncomment to enable keyboard input for manual control
-    # curses.wrapper(kb_main)
-
+    alpha2, beta2, gamma2 = leg2.inverseKin3(10.0,HIP_TO_SHOULDER + 100.0,100.0)
+    leg2.move(2*math.pi - alpha2, math.pi + math.pi/2 -beta2,math.pi/2+gamma2)
+    
+    
+    
+    
 
 if __name__ == "__main__":
     main()

@@ -12,7 +12,7 @@ class RobotDog:
         self.legs = []
 
         for i in range(4):
-            self.legs.append(RobotLeg(i, upper_leg_length, lower_leg_length, hip_to_shoulder, leg_ids[i], legs_initial_positions[i]))
+            self.legs.append(RobotLeg(i, UPPER_LEG_LENGTH, LOWER_LEG_LENGTH, HIP_TO_SHOULDER, LEG_IDS[i], legs_initial_positions[i]))
             self.legs[i].move(*self.legs[i].inverseKinematics(*legs_initial_positions[i]))
         
     # Moves the legs to the specified positions relative to each hip joint

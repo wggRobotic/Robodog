@@ -42,8 +42,11 @@ class ServoControl:
         position, result, error = packetHandler.ReadPos(id)
         if result == COMM_SUCCESS:
             print(f"Servo ID {id} Position: {position}")
+            return position
         else:
             print(f"Error reading position: {packetHandler.getTxRxResult(result)}")
+            return None
+        
 
 
     def set_pos(self, id:int, angle:float):
@@ -51,17 +54,16 @@ class ServoControl:
         # Map angle to servo position
         servo_position = int(self.map_value(angle, 0, math.pi*2, 0, 4095))
         #Prevents mechanical damage
-        if servo_position < servos_min_value[id]:
-            servo_position = servos_min_value[id]
-        elif servo_position > servos_max_value[id]:
-            servo_position = servos_max_value[id]
+        if servo_position < SERVOS_MIN_VALUE[id-1]:
+            servo_position = SERVOS_MIN_VALUE[id-1]
+            print("limited move from servo:%s"%id)
+        elif servo_position > SERVOS_MAX_VALUE[id-1]:
+            servo_position = SERVOS_MAX_VALUE[id-1]
+            print("limited move from servo:%s"%id)
         # Set goal position
         sts_comm_result = packetHandler.SyncWritePosEx(id,servo_position,STS_MOVING_SPEED,STS_MOVING_ACC)  
         if sts_comm_result != True:
             print("[ID:%03d] groupSyncWrite addparam failed" % servo_position)
-
-        # Clear syncwrite parameter storage
-        packetHandler.groupSyncWrite.clearParam()
         
     def move_positions(self):
         result_front = self.packetHandlerFront.groupSyncWrite.txPacket()

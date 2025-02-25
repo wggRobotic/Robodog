@@ -24,33 +24,42 @@ from STservo_sdk import *  # Uses STServo SDK library
 
 # Default settings
 BAUDRATE = 1000000  # Default baud rate for STServo
-DEVICENAME = '/dev/board_front'  # Adjust the serial port according to your system
 
-STS_MINIMUM_POSITION_VALUE = 0
-STS_MAXIMUM_POSITION_VALUE = 4095
-STS_MOVING_SPEED = 2400
-STS_MOVING_ACC = 50
+DEVICENAMEF = '/dev/board_front'
+DEVICENAMEB = '/dev/board_back'
 
 # Initialize PortHandler instance
-portHandler = PortHandler(DEVICENAME)
-
+portHandlerb = PortHandler(DEVICENAMEB)
+portHandlerf = PortHandler(DEVICENAMEF)
 # Initialize PacketHandler instance
-packetHandler = sts(portHandler)
-
+packetHandlerf = sts(portHandlerf)
+packetHandlerb = sts(portHandlerb)
 # Open port
-if not portHandler.openPort():
+if not portHandlerf.openPort():
     print("Failed to open the port")
-    quit()
-print("Succeeded in opening the port")
+    sys.exit()
 
-# Set port baud rate
-if not portHandler.setBaudRate(BAUDRATE):
-    print("Failed to change the baud rate")
-    quit()
-print("Succeeded in changing the baud rate")
+if not portHandlerb.openPort():
+    print("Failed to open the port")
+    sys.exit()
+    
+# Set baudrate
+if not portHandlerb.setBaudRate(BAUDRATE):
+    print("Failed to set baudrate")
+    sys.exit()
+    
+# Set baudrate
+if not portHandlerf.setBaudRate(BAUDRATE):
+    print("Failed to set baudrate")
+    sys.exit()
 
 # Select servo ID
 SERVO_ID = int(input("Enter SERVO ID: "))  
+
+if int(SERVO_ID) <= 6:
+        packetHandler = packetHandlerf
+else:
+    packetHandler = packetHandlerb
 
 # Read and display current offset
 offset_low, _, _ = packetHandler.read1ByteTxRx(SERVO_ID, STS_OFS_L)

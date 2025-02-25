@@ -7,23 +7,20 @@ STS_MOVING_SPEED = 2400
 STS_MOVING_ACC = 50
 
 
-upper_leg_length = 108.5
-lower_leg_length = 136.0
-hip_to_shoulder = 50.0
+UPPER_LEG_LENGTH = 95.0
+LOWER_LEG_LENGTH = 115.0
+HIP_TO_SHOULDER = 70.0
+BODY_LENGTH = 100
+BODY_WIDTH = 100
 
-body_length = 100
-body_width = 100
-upper_leg_length = 108.5
-lower_leg_length = 136.0
-
-leg_ids = [
+LEG_IDS = [
     [1, 2, 3],
     [6, 5, 4],
     [7, 8, 9],
     [12, 11, 10],
 ]
 
-legs_initial_values = [
+LEGS_INTIAL_VALUES = [
     [2047, 2047, 2047, 2047],
     [2047, 2047, 2047, 2047],
     [2047, 2047, 2047, 2047],
@@ -31,17 +28,17 @@ legs_initial_values = [
 ]
 
 
-servos_min_value = [
-    0, 0, 0,
-    0, 0, 0,
-    0, 0, 0,
-    0, 0, 0,
+SERVOS_MIN_VALUE = [
+    1237, 0, 868,
+    954, 0, 979,
+    1539, 0, 847,
+    874, 0, 817,
 ]
 
-servos_max_value = [
-    4095, 4095, 4095,
-    4095, 4095, 4095,
-    4095, 4095, 4095,
-    4095, 4095, 4095,
+SERVOS_MAX_VALUE = [
+    3345, 4095, 3230,
+    3243, 4095, 2612,
+    3344, 4095, 3206,
+    3161, 4095, 2598,
 ]
 
