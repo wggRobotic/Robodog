@@ -1,5 +1,6 @@
 import math
 from typing import List
+import numpy as np
 
 from idefix.servo_control import*
 
@@ -91,9 +92,33 @@ class RobotLeg:
         return ellbow_angle, shoulder_angle, hip_angle
 
     #moves the joints to specified angles
-    def move(self, ellbow_angle: float, shoulder_angle: float, hip_angle: float):
-        #TODO angle bound check
-        self.sc.set_pos(self.servo_ids[0], ellbow_angle)
-        self.sc.set_pos(self.servo_ids[1], shoulder_angle)
-        self.sc.set_pos(self.servo_ids[2], hip_angle)
-        self.sc.move_positions()
+    def move(self, ellbow_angle: float, shoulder_angle: float, hip_angle: float, steps: int = 20, tolerance: float = 0.02):
+        # Get the current positions of the servos
+        actual_ellbow_angle = self.sc.get_pos(self.servo_ids[0])
+        actual_shoulder_angle = self.sc.get_pos(self.servo_ids[1])
+        actual_hip_angle = self.sc.get_pos(self.servo_ids[2])
+
+        # Generate a smooth trajectory using linear interpolation
+        ellbow_trajectory = np.linspace(actual_ellbow_angle, ellbow_angle, steps)
+        shoulder_trajectory = np.linspace(actual_shoulder_angle, shoulder_angle, steps)
+        hip_trajectory = np.linspace(actual_hip_angle, hip_angle, steps)
+
+        for i in range(steps):
+            # Set the target position for each servo at the current step
+            self.sc.set_pos(self.servo_ids[0], ellbow_trajectory[i])
+            self.sc.set_pos(self.servo_ids[1], shoulder_trajectory[i])
+            self.sc.set_pos(self.servo_ids[2], hip_trajectory[i])
+            self.sc.move_positions()
+
+            # Wait until all servos reach their target position within the tolerance
+            while True:
+                current_ellbow = self.sc.get_pos(self.servo_ids[0])
+                current_shoulder = self.sc.get_pos(self.servo_ids[1])
+                current_hip = self.sc.get_pos(self.servo_ids[2])
+
+                ellbow_reached = abs(current_ellbow - ellbow_trajectory[i]) <= tolerance * abs(ellbow_angle)
+                shoulder_reached = abs(current_shoulder - shoulder_trajectory[i]) <= tolerance * abs(shoulder_angle)
+                hip_reached = abs(current_hip - hip_trajectory[i]) <= tolerance * abs(hip_angle)
+
+                if ellbow_reached and shoulder_reached and hip_reached:
+                    break  # Proceed to the next step

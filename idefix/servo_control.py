@@ -5,7 +5,7 @@ from idefix.robot_constants import *
 class ServoControl:
     def __init__(self):
         # Initialize PortHandler instances
-        self.port_handler_front = PortHandler(DEVICENAME_FRONT) ; self.port_handler_back = PortHandler(DEVICENAME_BACK)
+        self.port_handler_front = PortHandler(DEVICE_NAME_FRONT) ; self.port_handler_back = PortHandler(DEVICE_NAME_BACK)
 
         # Initialize PacketHandler instances
         self.packetHandlerFront = sts(self.port_handler_front) ; self.packetHandlerBack = sts(self.port_handler_back)
@@ -42,7 +42,8 @@ class ServoControl:
         position, result, error = packetHandler.ReadPos(id)
         if result == COMM_SUCCESS:
             print(f"Servo ID {id} Position: {position}")
-            return position
+            angle = position / 2047 * math.pi
+            return angle
         else:
             print(f"Error reading position: {packetHandler.getTxRxResult(result)}")
             return None

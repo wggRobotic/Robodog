@@ -1,7 +1,7 @@
 
 BAUDRATE = 1000000
-DEVICENAME_FRONT = '/dev/board_front'
-DEVICENAME_BACK = '/dev/board_back'
+DEVICE_NAME_FRONT = '/dev/board_front'
+DEVICE_NAME_BACK = '/dev/board_back'
 
 STS_MOVING_SPEED = 2400
 STS_MOVING_ACC = 50
