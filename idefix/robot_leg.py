@@ -39,6 +39,9 @@ class RobotLeg:
         return alpha,beta
     
     def inverseKin3(self, x:float , y:float, z:float) -> List[float]:
+        if (self.id % 2) != 0:
+            y = -y
+            
         shoulder_to_foot = math.sqrt(z**2+y**2 - self.hip_to_shoulder**2)
         
         gamma1 = math.atan2(y,z)
@@ -92,7 +95,9 @@ class RobotLeg:
         return ellbow_angle, shoulder_angle, hip_angle
 
     #moves the joints to specified angles
-    def move(self, ellbow_angle: float, shoulder_angle: float, hip_angle: float, steps: int = 20, tolerance: float = 0.02):
+    import numpy as np
+
+    def move(self, ellbow_angle: float, shoulder_angle: float, hip_angle: float, steps: int = 20):
         # Get the current positions of the servos
         actual_ellbow_angle = self.sc.get_pos(self.servo_ids[0])
         actual_shoulder_angle = self.sc.get_pos(self.servo_ids[1])
@@ -110,15 +115,25 @@ class RobotLeg:
             self.sc.set_pos(self.servo_ids[2], hip_trajectory[i])
             self.sc.move_positions()
 
-            # Wait until all servos reach their target position within the tolerance
+            # Wait until all servos reach their target position by checking if their position stops changing
+            prev_ellbow = None
+            prev_shoulder = None
+            prev_hip = None
+
             while True:
                 current_ellbow = self.sc.get_pos(self.servo_ids[0])
                 current_shoulder = self.sc.get_pos(self.servo_ids[1])
                 current_hip = self.sc.get_pos(self.servo_ids[2])
 
-                ellbow_reached = abs(current_ellbow - ellbow_trajectory[i]) <= tolerance * abs(ellbow_angle)
-                shoulder_reached = abs(current_shoulder - shoulder_trajectory[i]) <= tolerance * abs(shoulder_angle)
-                hip_reached = abs(current_hip - hip_trajectory[i]) <= tolerance * abs(hip_angle)
+                # Check if the servo positions remain unchanged from the last check
+                ellbow_reached = prev_ellbow is not None and current_ellbow == prev_ellbow
+                shoulder_reached = prev_shoulder is not None and current_shoulder == prev_shoulder
+                hip_reached = prev_hip is not None and current_hip == prev_hip
 
                 if ellbow_reached and shoulder_reached and hip_reached:
                     break  # Proceed to the next step
+
+                # Update previous values for the next iteration
+                prev_ellbow = current_ellbow
+                prev_shoulder = current_shoulder
+                prev_hip = current_hip

@@ -74,4 +74,6 @@ while True:
         print(f"Error reading position: {packetHandler.getTxRxResult(result)}")
 
 # Close port
-portHandler.closePort()
+portHandlerb.closePort()
+portHandlerf.closePort()
+
