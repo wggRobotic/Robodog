@@ -11,60 +11,66 @@ from idefix.robot_constants import *
 
 
 def main():
-    # i sneaked in :)
     sc = ServoControl()
-    leg1 = RobotLeg(
+    leg0 = RobotLeg(
         0,
         UPPER_LEG_LENGTH,
         LOWER_LEG_LENGTH,
         HIP_TO_SHOULDER,
         LEG_IDS[0],
-        LEGS_INTIAL_VALUES[0],
+        LEGS_INTIAL_POSITIONS[0],
         sc,
     )
-    leg2 = RobotLeg(
+    leg1 = RobotLeg(
         1,
         UPPER_LEG_LENGTH,
         LOWER_LEG_LENGTH,
         HIP_TO_SHOULDER,
         LEG_IDS[1],
-        LEGS_INTIAL_VALUES[1],
+        LEGS_INTIAL_POSITIONS[1],
         sc,
     )
-    leg3 = RobotLeg(
+    leg2 = RobotLeg(
         2,
         UPPER_LEG_LENGTH,
         LOWER_LEG_LENGTH,
         HIP_TO_SHOULDER,
         LEG_IDS[2],
-        LEGS_INTIAL_VALUES[2],
+        LEGS_INTIAL_POSITIONS[2],
         sc,
     )
-    leg4 = RobotLeg(
+    leg3 = RobotLeg(
         3,
         UPPER_LEG_LENGTH,
         LOWER_LEG_LENGTH,
         HIP_TO_SHOULDER,
         LEG_IDS[3],
-        LEGS_INTIAL_VALUES[3],
+        LEGS_INTIAL_POSITIONS[3],
         sc
     )
 
-    x = 0.0
-    y = HIP_TO_SHOULDER 
-    z = 180.0
+    dog = RobotDog(BODY_LENGTH,BODY_WIDTH)
+    # dog.move_legs(
+    #     [
+    #         [0.0,HIP_TO_SHOULDER  ,160.0],#0
+    #         [0.0,HIP_TO_SHOULDER + 60.0 ,160.0],#1
+    #         [0.0,-HIP_TO_SHOULDER - 60.0 ,160.0],#2
+    #         [0.0,-HIP_TO_SHOULDER,160.0],#3
+    #     ]
+    # )
+    #dog.pitch(-27/180*math.pi)
+    #dog.roll(-27/180*math.pi)
+    for i in range(10):
+        dog.yaw(-math.pi/4)
+        time.sleep(1.0)
+        dog.yaw(math.pi/4)
+        time.sleep(1.0)
+        dog.yaw(math.pi/4)
+        time.sleep(1.0)
+        dog.yaw(-math.pi/4)
+        time.sleep(1.0)
 
-    alpha1, beta1, gamma1 = leg1.inverseKin3(x, y, z)
-    leg1.move(2 * math.pi - alpha1, 1.5 * math.pi - beta1, 1.5 * math.pi - gamma1, 20)
-
-    alpha2, beta2, gamma2 = leg2.inverseKin3(x, -y, z)
-    leg2.move(alpha2,0.5* math.pi + beta2, 0.5 * math.pi + gamma2, 20)
-    
-    alpha3, beta3, gamma3 = leg3.inverseKin3(x, y, z)
-    leg3.move(2 * math.pi - alpha3, 1.5 * math.pi - beta3, 0.5 * math.pi + gamma3, 20)
-
-    alpha4, beta4, gamma4 = leg4.inverseKin3(x, -y, z)
-    leg4.move(alpha4,0.5* math.pi +beta4, 1.5 * math.pi - gamma4, 20)
+   
 
 
 if __name__ == "__main__":

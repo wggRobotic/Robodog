@@ -70,10 +70,10 @@ class ServoControl:
         result_front = self.packetHandlerFront.groupSyncWrite.txPacket()
         result_back = self.packetHandlerBack.groupSyncWrite.txPacket()
 
-        if result_front != COMM_SUCCESS:
-            print("%s"% self.packetHandlerFront.getTxRxResult(result_front))
-        if result_back != COMM_SUCCESS:
-            print("%s"% self.packetHandlerBack.getTxRxResult(result_back))
+        # if result_front != COMM_SUCCESS:
+        #     print("%s"% self.packetHandlerFront.getTxRxResult(result_front))
+        # if result_back != COMM_SUCCESS:
+        #     print("%s"% self.packetHandlerBack.getTxRxResult(result_back))
         
         self.packetHandlerFront.groupSyncWrite.clearParam()
         self.packetHandlerBack.groupSyncWrite.clearParam()
