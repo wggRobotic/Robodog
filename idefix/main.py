@@ -7,11 +7,13 @@ sys.path.append("..")
 from idefix.servo_control import ServoControl
 from idefix.robot_leg import RobotLeg
 from idefix.robot_dog import RobotDog
+from idefix.xbox_controller import XboxController
 from idefix.robot_constants import *
 
 
 def main():
     sc = ServoControl()
+    controller = XboxController()
     leg0 = RobotLeg(
         0,
         UPPER_LEG_LENGTH,
@@ -58,17 +60,33 @@ def main():
     #         [0.0,-HIP_TO_SHOULDER,160.0],#3
     #     ]
     # )
-    #dog.pitch(-27/180*math.pi)
-    #dog.roll(-27/180*math.pi)
-    for i in range(10):
-        dog.yaw(-math.pi/4)
-        time.sleep(1.0)
-        dog.yaw(math.pi/4)
-        time.sleep(1.0)
-        dog.yaw(math.pi/4)
-        time.sleep(1.0)
-        dog.yaw(-math.pi/4)
-        time.sleep(1.0)
+    #dog.pitch(27/180*math.pi)
+    #dog.pitch(27/180*math.pi)
+
+    #dog.roll(27/180*math.pi)
+    #dog.roll(27/180*math.pi)
+
+    # dog.yaw(27/180*math.pi)
+    # dog.yaw(27/180*math.pi)
+
+
+
+    #while True:
+        # Read controller input for the left joystick Y-axis
+        # ly_raw = controller.get_axis('ABS_Y')
+        # ly = ServoControl.map_value(ly_raw, 0, 65535,-1 , 1)
+
+        # # Apply a deadzone to ignore small movements
+        # if abs(ly) < 0.2:
+        #     ly = 0.0
+        
+    dog.pitch(math.pi/3)
+    
+   
+
+
+        
+        
 
    
 
