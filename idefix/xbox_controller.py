@@ -13,12 +13,12 @@ class XboxController:
         # State of the controller
         self.state = {
             'axes': {
-                'ABS_X': 0,      # Left Joystick X-axis
-                'ABS_Y': 0,      # Left Joystick Y-axis
-                'ABS_RX': 0,     # Right Joystick X-axis
-                'ABS_RY': 0,     # Right Joystick Y-axis
-                'ABS_Z': 0,      # Left Trigger
-                'ABS_RZ': 0,     # Right Trigger
+                'ABS_X': 32768,      # Left Joystick X-axis
+                'ABS_Y': 32768,      # Left Joystick Y-axis
+                'ABS_RX': 32768,     # Right Joystick X-axis
+                'ABS_RY': 32768,     # Right Joystick Y-axis
+                'ABS_Z': 32768,      # Left Trigger
+                'ABS_RZ': 32768,     # Right Trigger
                 'ABS_HAT0X': 0,  # D-Pad Left/Right
                 'ABS_HAT0Y': 0,  # D-Pad Up/Down
             },
@@ -49,9 +49,9 @@ class XboxController:
                 elif event.code == ecodes.ABS_Y:
                     self.state['axes']['ABS_Y'] = event.value
                 elif event.code == ecodes.ABS_RX:
-                    self.state['axes']['ABS_RX'] = event.value
+                    self.state['axes']['ABS_RZ'] = event.value
                 elif event.code == ecodes.ABS_RY:
-                    self.state['axes']['ABS_RY'] = event.value
+                    self.state['axes']['ABS_Z'] = event.value
                 elif event.code == ecodes.ABS_Z:
                     self.state['axes']['ABS_Z'] = event.value
                 elif event.code == ecodes.ABS_RZ:
@@ -95,7 +95,7 @@ if __name__ == "__main__":
 
     while True:
         # Example: Query axis and button values
-        left_stick_x = controller.get_axis('ABS_X')
+        left_stick_x = controller.get_axis('ABS_Z')
         a_button = controller.get_button('BTN_SOUTH')
         dpad_x = controller.get_axis('ABS_HAT0X')  # D-Pad Left/Right
         dpad_y = controller.get_axis('ABS_HAT0Y')  # D-Pad Up/Down

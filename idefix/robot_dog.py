@@ -1,5 +1,7 @@
 import math
 from typing import List
+import numpy as np
+
 
 from idefix.robot_leg import RobotLeg
 from idefix.servo_control import ServoControl
@@ -11,9 +13,12 @@ class RobotDog:
         self.body_length = body_length
         self.body_width = body_width
         self.legs = []
-        self.current_pitch = 0.0
-        self.current_yaw = 0.0
-        self.current_roll = 0.0
+        self.current_pitch_z = 0.0
+        self.current_pitch_x = 0.0
+        self.current_yaw_x = 0.0
+        self.current_yaw_y = 0.0
+        self.current_roll_y = 0.0
+        self.current_roll_z = 0.0
         self.sc = ServoControl()
 
         for i in range(4):
@@ -31,6 +36,7 @@ class RobotDog:
     def move_legs(self, targets: List[List[float]]):
         for i in range(4):
             try:
+                #print(f"Current_position leg{self.legs[i].id}: {self.legs[i].current_position}")
                 alpha, beta, gamma = self.legs[i].inverseKin(targets[i][0], targets[i][1], targets[i][2])
                 if None not in (alpha, beta, gamma):
                     self.legs[i].move(alpha, beta, gamma)
@@ -40,80 +46,72 @@ class RobotDog:
             except Exception as e:
                 print(f"Error moving leg {i}: {e}")
 
-    def roll(self, target_alpha: float):
+
+    def set_orientation(self):
+        new_positions = []
+        for i, leg in enumerate(self.legs):
+            x,y,z = LEGS_INTIAL_POSITIONS[i]
+            match leg.id:
+                case 0:
+                    new_x = x + self.current_pitch_x - self.current_yaw_x
+                    new_y = y + self.current_roll_y + self.current_yaw_y
+                    new_z = z - self.current_roll_z - self.current_pitch_z
+                case 1:
+                    new_x = x + self.current_pitch_x + self.current_yaw_x
+                    new_y = y - self.current_roll_y + self.current_yaw_y
+                    new_z = z + self.current_roll_z - self.current_pitch_z
+                case 2:
+                    new_x = x + self.current_pitch_x - self.current_yaw_x
+                    new_y = y + self.current_roll_y - self.current_yaw_y
+                    new_z = z - self.current_roll_z + self.current_pitch_z
+                case 3:
+                    new_x = x + self.current_pitch_x + self.current_yaw_x
+                    new_y = y - self.current_roll_y - self.current_yaw_y
+                    new_z = z + self.current_roll_z + self.current_pitch_z
+
+            new_positions.append([new_x,new_y,new_z])
+        self.move_legs(new_positions)
+                
+
+    def roll(self, alpha: float):
         try:
-            alpha = self.current_roll - target_alpha
-            if abs(alpha) < 0.1:
-                return
-            delta_Y = 0.5 * self.body_width - 0.5 * self.body_width * math.cos(alpha)
+            delta_Y = 0.5 * self.body_width *( 1.0 - math.cos(alpha))
             delta_Z = math.sin(alpha) * 0.5 * self.body_width
-            new_positions = []
-
-            for i, leg in enumerate(self.legs):
-                x, y, z = leg.current_position
-                if i in [0, 2]:  # left
-                    z -= delta_Z
-                else:  # right
-                    z += delta_Z
-                y += delta_Y
-                new_positions.append([x, y, z])
-
-            self.move_legs(new_positions)
-            self.current_roll = target_alpha
+            
+            self.current_roll_y = delta_Y
+            self.current_roll_z = delta_Z
+            print(f"delta_Y:{delta_Y}, delta_Z: {delta_Z}")
         except Exception as e:
             print(f"Error in roll movement: {e}")
 
-    def pitch(self, target_alpha: float):
+    def pitch(self, alpha: float):
         try:
-            alpha = self.current_pitch - target_alpha
-            if abs(alpha) < 0.1:
-                return
             delta_X = 0.5 * self.body_length - 0.5 * self.body_length * math.cos(alpha)
             delta_Z = math.sin(alpha) * 0.5 * self.body_width
-            new_positions = []
 
-            for i, leg in enumerate(self.legs):
-                x, y, z = leg.current_position
-                if i in [0, 1]:  # front
-                    z -= delta_Z
-                else:  # back
-                    z += delta_Z
-                x += delta_X
-                new_positions.append([x, y, z])
-
-            self.move_legs(new_positions)
-            self.current_pitch = target_alpha
+            self.current_pitch_x = delta_X
+            self.current_pitch_z = delta_Z
+            
         except Exception as e:
             print(f"Error in pitch movement: {e}")
 
-    def yaw(self, target_alpha: float):
+    def yaw(self, alpha: float):
         try:
-            target_alpha = 2 * (target_alpha + math.pi / 4)
-            alpha = target_alpha - self.current_yaw
-            if abs(alpha) < 0.1:
-                return
+            alpha = alpha * 4
             delta_X = math.sin(alpha) * self.body_width * 0.5
-            delta_Y = math.cos(alpha) * self.body_length * 0.5
-            new_positions = []
+            delta_Y = (math.cos(alpha)-1) * self.body_length * 0.5
 
-            for i, leg in enumerate(self.legs):
-                x, y, z = leg.current_position
-                match i:
-                    case 0:
-                        x -= delta_X
-                        y += delta_Y
-                    case 1:
-                        x += delta_X
-                        y += delta_Y
-                    case 2:
-                        x -= delta_X
-                        y -= delta_Y
-                    case 3:
-                        x += delta_X
-                        y -= delta_Y
-                new_positions.append([x, y, z])
+            
+            # if (abs(delta_Y) < 0.1): 
+            #     self.current_yaw_x = 0.0
+            #     self.current_yaw_y = 0.0
+            #     return
+            if (alpha < 0):
+                delta_Y *= -1
+            print(delta_X)
+            print(delta_Y)
+            self.current_yaw_x = delta_X
+            self.current_yaw_y = delta_Y 
 
-            self.move_legs(new_positions)
-            self.current_yaw = target_alpha
         except Exception as e:
             print(f"Error in yaw movement: {e}")
