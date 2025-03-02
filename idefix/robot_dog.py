@@ -43,28 +43,37 @@ class RobotDog:
                 print(f"Error moving leg {i}: {e}")
                 
 
-    def roll(self, positions:List[List[float]], alpha: float, z:float):
+    def roll(self, positions: List[List[float]], alpha: float):
         try:
-            new_width = self.body_width * math.cos(alpha)
+            new_width = self.body_width * math.cos(abs(alpha))
             height_diff = math.sqrt(self.body_width**2 - new_width**2)
             y_offset = self.body_width - new_width
+
+            #print(f"new_width: {new_width}, height_diff: {height_diff}, y_offset: {y_offset}")
             new_positions = []
+
             for i, position in enumerate(positions):
                 x, y, z = position
-                match i:
-                    case 0:
-                        height = z - height_diff
-                    case 1:
-                        y_offset = z + height_diff
-                    case 2:
-                        y_offset = z - height_diff
-                    case 3:
-                        y_offset *= z + height_diff
-    
-                new_Z = height * math.cos(alpha)
-                from_foot_to_shoulder = math.sqrt(y_offset**2 + height**2)
-                new_Y = math.sqrt(from_foot_to_shoulder**2 - new_Z**2)
+
+                # Set height based on alpha's sign
+                if i in [0, 2]:
+                    height = z - height_diff if alpha > 0 else z + height_diff
+                else:
+                    height = z + height_diff if alpha > 0 else z - height_diff
+
+                new_Z = height * math.cos(abs(alpha))
+                #print(f"Leg {i} -> new_Z: {new_Z}")
+
+                from_foot_to_shoulder = math.sqrt(max(0, y_offset**2 + height**2))
+                #print(f"Leg {i} -> from_foot_to_shoulder: {from_foot_to_shoulder}")
+
+                # Adjust Y based on alpha's sign
+                delta_Y = math.sqrt(max(0, from_foot_to_shoulder**2 - new_Z**2))
+                new_Y = y - delta_Y if alpha > 0 else y + delta_Y
+                
+                #print(f"Leg {i} -> new position: ({x}, {new_Y}, {new_Z})")
                 new_positions.append([x, new_Y, new_Z])
+
             self.move_legs(new_positions)
         except Exception as e:
             print(f"Error in roll movement: {e}")
