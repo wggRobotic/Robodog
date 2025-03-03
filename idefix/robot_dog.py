@@ -34,17 +34,23 @@ class RobotDog:
                 print(f"Error initializing leg {i}: {e}")
 
     def move_legs(self, targets: List[List[float]]):
+        angles = []
+        
         for i in range(4):
             try:
-                #print(f"Current_position leg{self.legs[i].id}: {self.legs[i].current_position}")
                 alpha, beta, gamma = self.legs[i].inverseKin(targets[i][0], targets[i][1], targets[i][2])
-                if None not in (alpha, beta, gamma):
-                    self.legs[i].move(alpha, beta, gamma)
-                    self.legs[i].current_position = targets[i]
-                else:
+                if None in (alpha, beta, gamma):
                     print(f"Warning: Invalid target position for leg {i}: {targets[i]}")
+                    return  
+                angles.append((alpha, beta, gamma))
             except Exception as e:
-                print(f"Error moving leg {i}: {e}")
+                print(f"Error computing IK for leg {i}: {e}")
+                return  
+        
+        for i in range(4):
+            self.legs[i].move(*angles[i])
+            self.legs[i].current_position = targets[i]
+
 
 
     def set_orientation(self):
