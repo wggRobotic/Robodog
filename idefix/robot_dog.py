@@ -49,7 +49,7 @@ class RobotDog:
             height_diff = math.sqrt(self.body_width**2 - new_width**2)
             y_offset = self.body_width - new_width
 
-            #print(f"new_width: {new_width}, height_diff: {height_diff}, y_offset: {y_offset}")
+            print(f"new_width: {new_width}, height_diff: {height_diff}, y_offset: {y_offset}")
             new_positions = []
 
             for i, position in enumerate(positions):
@@ -58,33 +58,57 @@ class RobotDog:
                 # Set height based on alpha's sign
                 if i in [0, 2]:
                     height = z - height_diff if alpha > 0 else z + height_diff
+                    world_Y = y - y_offset 
                 else:
                     height = z + height_diff if alpha > 0 else z - height_diff
+                    world_Y = y + y_offset
 
                 new_Z = height * math.cos(abs(alpha))
-                #print(f"Leg {i} -> new_Z: {new_Z}")
+                
+                #print(f"Leg {i} -> new_Z: {new_Z}, world_Y = {world_Y}")
 
-                from_foot_to_shoulder = math.sqrt(max(0, y_offset**2 + height**2))
+                from_foot_to_shoulder = math.sqrt(max(0, (world_Y)**2 + height**2))
                 #print(f"Leg {i} -> from_foot_to_shoulder: {from_foot_to_shoulder}")
 
-                # Adjust Y based on alpha's sign
-                delta_Y = math.sqrt(max(0, from_foot_to_shoulder**2 - new_Z**2))
-                new_Y = y - delta_Y if alpha > 0 else y + delta_Y
                 
-                #print(f"Leg {i} -> new position: ({x}, {new_Y}, {new_Z})")
-                new_positions.append([x, new_Y, new_Z])
+                new_Y = math.sqrt(max(0, from_foot_to_shoulder**2 - new_Z**2))
 
-            self.move_legs(new_positions)
+                if i in[1,3]:
+                    new_Y *= -1.0
+
+                delta_Y = new_Y - y
+                corrected_Y_Value = y + delta_Y if (height < z) else y - delta_Y
+                print(f"Leg {i} -> new position: ({x}, {corrected_Y_Value}, {new_Z})")
+                new_positions.append([x, corrected_Y_Value, new_Z])
+
+            return new_positions
         except Exception as e:
             print(f"Error in roll movement: {e}")
 
-    def pitch(self, alpha: float):
+    def pitch(self, positions: List[List[float]], alpha: float):
         try:
-            delta_X = 0.5 * self.body_length - 0.5 * self.body_length * math.cos(alpha)
-            delta_Z = math.sin(alpha) * 0.5 * self.body_width
+            print(alpha/math.pi*180)
+            new_length = self.body_length * math.cos(abs(alpha))
+            height_diff = math.sqrt(self.body_length**2 - new_length**2)
+            x_offset = self.body_length - new_length
 
-            self.current_pitch_x = delta_X
-            self.current_pitch_z = delta_Z
+            new_positions = []
+
+            for i, position in enumerate(positions):
+                x, y, z = position
+
+                if i in [0, 1]:
+                    height = z - height_diff if alpha > 0 else z + height_diff
+                    world_X = x - x_offset 
+                else:
+                    height = z + height_diff if alpha > 0 else z - height_diff
+                    world_X = x + x_offset
+
+                new_Z = height * math.cos(abs(alpha))
+                from_foot_to_shoulder = math.sqrt(max(0, (world_X)**2 + height**2))
+                new_X = math.sqrt(max(0, from_foot_to_shoulder**2 - new_Z**2))
+                new_positions.append([new_X, y, new_Z])
+            return new_positions
             
         except Exception as e:
             print(f"Error in pitch movement: {e}")
@@ -95,11 +119,6 @@ class RobotDog:
             delta_X = math.sin(alpha) * self.body_width * 0.5
             delta_Y = (math.cos(alpha)-1) * self.body_length * 0.5
 
-            
-            # if (abs(delta_Y) < 0.1): 
-            #     self.current_yaw_x = 0.0
-            #     self.current_yaw_y = 0.0
-            #     return
             if (alpha < 0):
                 delta_Y *= -1
             print(delta_X)
