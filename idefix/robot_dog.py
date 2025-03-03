@@ -30,58 +30,59 @@ class RobotDog:
                 print(f"Error initializing leg {i}: {e}")
 
     def move_legs(self, targets: List[List[float]]):
+        angles = []
+        
         for i in range(4):
             try:
-                #print(f"Current_position leg{self.legs[i].id}: {self.legs[i].current_position}")
                 alpha, beta, gamma = self.legs[i].inverseKin(targets[i][0], targets[i][1], targets[i][2])
-                if None not in (alpha, beta, gamma):
-                    self.legs[i].move(alpha, beta, gamma)
-                    self.legs[i].current_position = targets[i]
-                else:
+                if None in (alpha, beta, gamma):
                     print(f"Warning: Invalid target position for leg {i}: {targets[i]}")
+                    return  
+                angles.append((alpha, beta, gamma))
             except Exception as e:
-                print(f"Error moving leg {i}: {e}")
+                print(f"Error computing IK for leg {i}: {e}")
+                return  
+        
+        for i in range(4):
+            self.legs[i].move(*angles[i])
+            self.legs[i].current_position = targets[i]
+
+
+
+    def set_orientation(self):
+        new_positions = []
+        for i, leg in enumerate(self.legs):
+            x,y,z = LEGS_INTIAL_POSITIONS[i]
+            match leg.id:
+                case 0:
+                    new_x = x + self.current_pitch_x + self.current_yaw_x
+                    new_y = y - self.current_roll_y + self.current_yaw_y
+                    new_z = z - self.current_roll_z - self.current_pitch_z
+                case 1:
+                    new_x = x + self.current_pitch_x - self.current_yaw_x
+                    new_y = y - self.current_roll_y + self.current_yaw_y
+                    new_z = z + self.current_roll_z - self.current_pitch_z
+                case 2:
+                    new_x = x + self.current_pitch_x + self.current_yaw_x
+                    new_y = y - self.current_roll_y - self.current_yaw_y
+                    new_z = z - self.current_roll_z + self.current_pitch_z
+                case 3:
+                    new_x = x + self.current_pitch_x - self.current_yaw_x
+                    new_y = y - self.current_roll_y - self.current_yaw_y
+                    new_z = z + self.current_roll_z + self.current_pitch_z
+
+            new_positions.append([new_x,new_y,new_z])
+        self.move_legs(new_positions)
                 
 
-    def roll(self, positions: List[List[float]], alpha: float):
+    def roll(self, alpha: float):
         try:
-            new_width = self.body_width * math.cos(abs(alpha))
-            height_diff = math.sqrt(self.body_width**2 - new_width**2)
-            y_offset = self.body_width - new_width
-
-            print(f"new_width: {new_width}, height_diff: {height_diff}, y_offset: {y_offset}")
-            new_positions = []
-
-            for i, position in enumerate(positions):
-                x, y, z = position
-
-                # Set height based on alpha's sign
-                if i in [0, 2]:
-                    height = z - height_diff if alpha > 0 else z + height_diff
-                    world_Y = y - y_offset 
-                else:
-                    height = z + height_diff if alpha > 0 else z - height_diff
-                    world_Y = y + y_offset
-
-                new_Z = height * math.cos(abs(alpha))
-                
-                #print(f"Leg {i} -> new_Z: {new_Z}, world_Y = {world_Y}")
-
-                from_foot_to_shoulder = math.sqrt(max(0, (world_Y)**2 + height**2))
-                #print(f"Leg {i} -> from_foot_to_shoulder: {from_foot_to_shoulder}")
-
-                
-                new_Y = math.sqrt(max(0, from_foot_to_shoulder**2 - new_Z**2))
-
-                if i in[1,3]:
-                    new_Y *= -1.0
-
-                delta_Y = new_Y - y
-                corrected_Y_Value = y + delta_Y if (height < z) else y - delta_Y
-                print(f"Leg {i} -> new position: ({x}, {corrected_Y_Value}, {new_Z})")
-                new_positions.append([x, corrected_Y_Value, new_Z])
-
-            return new_positions
+            delta_Y = 0.5 * self.body_width *( 1.0 - math.cos(alpha))
+            delta_Z = math.sin(alpha) * 0.5 * self.body_width
+            
+            self.current_roll_y = delta_Y
+            self.current_roll_z = delta_Z
+            print(f"delta_Y:{delta_Y}, delta_Z: {delta_Z}")
         except Exception as e:
             print(f"Error in roll movement: {e}")
 

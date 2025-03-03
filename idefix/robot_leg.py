@@ -58,6 +58,7 @@ class RobotLeg:
             print(f"Unexpected error: {e} (Leg ID: {self.id})")
             return [None, None, None]
 
+
     def move(self, elbow_angle: float, shoulder_angle: float, hip_angle: float):
         try:
             if None in [elbow_angle, shoulder_angle, hip_angle]:

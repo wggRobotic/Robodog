@@ -3,96 +3,55 @@ from time import sleep
 from typing import List
 
 from idefix.robot_dog import RobotDog
+from idefix.robot_leg import RobotLeg
+
 
 class Gait:
     def __init__(self, dog: 'RobotDog'):
-        # Initialize the gait with the RobotDog object
         self.dog = dog
-        self.steps = 100  # Number of steps for a full movement
+        self.steps = 10  
+        self.cycles = 3  # Number of complete cycles
 
-    def walk(self, step_length: float, step_height: float, speed: float):
-        """
-        Standard walking gait. Moves the dog forward with a certain step length and height.
-        step_length: The length of each step the dog will take
-        step_height: The height of the step (how high the leg will lift)
-        speed: The speed of the movement (time per step)
-        """
-        for step in range(self.steps):
-            for i, leg in enumerate(self.dog.legs):
-                # Calculate the x and y position for each leg for a step
-                x_position = step_length * math.cos(math.pi * step / self.steps)
-                y_position = step_length * math.sin(math.pi * step / self.steps)
-                
-                # Z position changes with each step, creating a "up and down" motion
-                z_position = step_height * math.sin(math.pi * step / self.steps)
-                
-                # Move the leg
-                leg.move_leg(x_position, y_position, z_position)
-            sleep(speed)
+    def walk(self, lin_x: float, lin_y: float, ang_z: float, step_length: float, step_height: float):
+        gait_sequence = [0, 3, 1, 2]  # Order in which the legs move
 
-    def trot(self, step_length: float, step_height: float, speed: float):
-        """
-        Trot gait: The legs on the same side move together.
-        This is faster than a walk and involves a more even movement pattern.
-        """
-        for step in range(self.steps):
-            for i, leg in enumerate(self.dog.legs):
-                # For trot, alternate the movement of the legs
-                x_position = step_length * math.cos(math.pi * step / self.steps)
-                y_position = step_length * math.sin(math.pi * step / self.steps)
-                z_position = step_height * math.sin(math.pi * step / self.steps)
-                
-                if i % 2 == 0:
-                    # Odd legs move in sync with each other
-                    leg.move_leg(x_position, y_position, z_position)
-                else:
-                    # Even legs move in sync with each other
-                    leg.move_leg(-x_position, -y_position, z_position)
-            sleep(speed)
+        alpha = math.atan2(self.dog.body_width, self.dog.body_length)
+        delta_y = math.cos(alpha) * ang_z
+        delta_x = math.sin(alpha) * ang_z
 
-    def pace(self, step_length: float, step_height: float, speed: float):
-        """
-        Pace gait: Both legs on the same side move together, typically used for faster movements.
-        """
-        for step in range(self.steps):
-            for i, leg in enumerate(self.dog.legs):
-                # For pace, all legs on the same side move in sync
-                x_position = step_length * math.cos(math.pi * step / self.steps)
-                y_position = step_length * math.sin(math.pi * step / self.steps)
-                z_position = step_height * math.sin(math.pi * step / self.steps)
+        # Movement vectors for each leg
+        vectors = [
+            [lin_x - delta_x, lin_y + delta_y],  # Front Left (FL)
+            [lin_x + delta_x, lin_y + delta_y],  # Front Right (FR)
+            [lin_x - delta_x, lin_y - delta_y],  # Back Left (BL)
+            [lin_x + delta_x, lin_y - delta_y]   # Back Right (BR)
+        ]
 
-                if i < 2:
-                    # First two legs move together (left side)
-                    leg.move_leg(x_position, y_position, z_position)
-                else:
-                    # Last two legs move together (right side)
-                    leg.move_leg(-x_position, -y_position, z_position)
-            sleep(speed)
+        for _ in range(self.cycles):  # Perform a specific number of steps
+            for leg_index in gait_sequence:
+                leg = self.dog.legs[leg_index]
+                x, y, z = leg.current_position  
 
-    def turn(self, angle: float, step_length: float, step_height: float, speed: float):
-        """
-        Rotates the dog around the vertical axis (Z-axis) while walking.
-        angle: The angle in degrees to rotate the dog
-        step_length: The length of each step the dog will take
-        step_height: The height of the step
-        speed: Speed of the movement
-        """
-        # Convert angle to radians
-        angle_rad = math.radians(angle)
+                startposition = [x, y, z]  # Initial position
+                endposition = [x + vectors[leg_index][0] * step_length, 
+                               y + vectors[leg_index][1] * step_length, 
+                               z]  # Target position
+                midposition = [x, y, z + step_height]  # Mid-position below the current position
 
-        for step in range(self.steps):
-            for i, leg in enumerate(self.dog.legs):
-                # Calculate the x and y position for each leg
-                x_position = step_length * math.cos(math.pi * step / self.steps)
-                y_position = step_length * math.sin(math.pi * step / self.steps)
-                
-                # Rotate the position by the angle
-                rotated_x = x_position * math.cos(angle_rad) - y_position * math.sin(angle_rad)
-                rotated_y = x_position * math.sin(angle_rad) + y_position * math.cos(angle_rad)
-                
-                # Z position remains the same
-                z_position = step_height * math.sin(math.pi * step / self.steps)
-                
-                # Move the leg to the new rotated position
-                leg.move_leg(rotated_x, rotated_y, z_position)
-            sleep(speed)
+                # Mid → End (move the leg forward)
+                self.interpolate_leg_movement(leg, midposition, endposition)
+
+                # End → Mid (lower the leg)
+                self.interpolate_leg_movement(leg, endposition, midposition)
+
+                # Mid → Start (reset leg position)
+                self.interpolate_leg_movement(leg, midposition, startposition)
+
+    def interpolate_leg_movement(self, leg: 'RobotLeg', start, end):
+        for t in range(self.steps):
+            interp = [
+                start[i] + (end[i] - start[i]) * (t / self.steps) for i in range(3)
+            ]
+            alpha, beta, gamma = leg.inverseKin(*interp)
+            leg.move(alpha, beta, gamma)
+            sleep(0.05)
