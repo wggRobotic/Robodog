@@ -89,9 +89,9 @@ def main():
             lx = 0.0
         if abs(rz) < 0.2:
              rz = 0.0
-        #dog.pitch(ly*math.pi/4)
+        dog.pitch(ly*math.pi/4)
         dog.roll(lx*math.pi/2)
-        #dog.yaw(rz*math.pi/8)
+        dog.yaw(rz*math.pi/8)
         dog.set_orientation()
         
     

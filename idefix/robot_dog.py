@@ -53,19 +53,19 @@ class RobotDog:
             x,y,z = LEGS_INTIAL_POSITIONS[i]
             match leg.id:
                 case 0:
-                    new_x = x + self.current_pitch_x - self.current_yaw_x
-                    new_y = y + self.current_roll_y + self.current_yaw_y
+                    new_x = x + self.current_pitch_x + self.current_yaw_x
+                    new_y = y - self.current_roll_y + self.current_yaw_y
                     new_z = z - self.current_roll_z - self.current_pitch_z
                 case 1:
-                    new_x = x + self.current_pitch_x + self.current_yaw_x
+                    new_x = x + self.current_pitch_x - self.current_yaw_x
                     new_y = y - self.current_roll_y + self.current_yaw_y
                     new_z = z + self.current_roll_z - self.current_pitch_z
                 case 2:
-                    new_x = x + self.current_pitch_x - self.current_yaw_x
-                    new_y = y + self.current_roll_y - self.current_yaw_y
+                    new_x = x + self.current_pitch_x + self.current_yaw_x
+                    new_y = y - self.current_roll_y - self.current_yaw_y
                     new_z = z - self.current_roll_z + self.current_pitch_z
                 case 3:
-                    new_x = x + self.current_pitch_x + self.current_yaw_x
+                    new_x = x + self.current_pitch_x - self.current_yaw_x
                     new_y = y - self.current_roll_y - self.current_yaw_y
                     new_z = z + self.current_roll_z + self.current_pitch_z
 
