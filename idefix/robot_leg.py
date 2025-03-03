@@ -57,7 +57,38 @@ class RobotLeg:
         except Exception as e:
             print(f"Unexpected error: {e} (Leg ID: {self.id})")
             return [None, None, None]
-
+        
+    def get_angles(self):
+        leg_angles = []
+        
+        for i in self.servo_ids:
+            angle = self.sc.get_angle(i)
+            leg_angles.append(angle)
+        
+        elbow_angle, shoulder_angle, hip_angle = leg_angles
+        
+        match self.id:
+            case 0:
+                elbow_angle = 2 * math.pi - elbow_angle
+                shoulder_angle = 1.5 * math.pi - shoulder_angle
+                hip_angle = 1.5 * math.pi - hip_angle
+            case 1:
+                shoulder_angle -= 0.5 * math.pi
+                hip_angle -= 0.5 * math.pi
+            case 2:
+                elbow_angle = 2 * math.pi - elbow_angle
+                shoulder_angle = 1.5 * math.pi - shoulder_angle
+                hip_angle -= 0.5 * math.pi
+            case 3:
+                shoulder_angle -= 0.5 * math.pi
+                hip_angle = 1.5 * math.pi - hip_angle
+        
+        return [elbow_angle, shoulder_angle, hip_angle]
+    
+    def deactivate_leg(self,deactivate:bool):
+        for i in self.servo_ids:
+            self.sc.enable_torque(i , not deactivate)
+                
 
     def move(self, elbow_angle: float, shoulder_angle: float, hip_angle: float):
         try:

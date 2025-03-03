@@ -37,7 +37,7 @@ class ServoControl:
         self.port_handler_back.closePort()
         
 
-    def get_pos(self, id):
+    def get_angle(self, id):
         packetHandler = self.packetHandlerFront if id <= 6 else self.packetHandlerBack
         position, result, error = packetHandler.ReadPos(id)
         if result == COMM_SUCCESS:

@@ -38,6 +38,7 @@ class RobotDog:
         
         for i in range(4):
             try:
+                #current_alpha,current_beta,current_gamma = self.legs[i].inverseKin(*self.legs[i].current_position)
                 alpha, beta, gamma = self.legs[i].inverseKin(targets[i][0], targets[i][1], targets[i][2])
                 if None in (alpha, beta, gamma):
                     print(f"Warning: Invalid target position for leg {i}: {targets[i]}")
@@ -89,7 +90,7 @@ class RobotDog:
             
             self.current_roll_y = delta_Y
             self.current_roll_z = delta_Z
-            print(f"delta_Y:{delta_Y}, delta_Z: {delta_Z}")
+            # print(f"delta_Y:{delta_Y}, delta_Z: {delta_Z}")
         except Exception as e:
             print(f"Error in roll movement: {e}")
 
@@ -118,8 +119,6 @@ class RobotDog:
             #     return
             if (alpha < 0):
                 delta_Y *= -1
-            print(delta_X)
-            print(delta_Y)
             self.current_yaw_x = delta_X
             self.current_yaw_y = delta_Y 
 

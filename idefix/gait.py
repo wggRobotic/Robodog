@@ -36,7 +36,7 @@ class Gait:
                 endposition = [x + vectors[leg_index][0] * step_length, 
                                y + vectors[leg_index][1] * step_length, 
                                z]  # Target position
-                midposition = [x, y, z + step_height]  # Mid-position below the current position
+                midposition = [x, y, z - step_height]  # Mid-position below the current position
 
                 # Mid → End (move the leg forward)
                 self.interpolate_leg_movement(leg, midposition, endposition)

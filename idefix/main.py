@@ -73,29 +73,46 @@ def main():
 
 
     g = Gait(dog)
+    old_ly = 0.0
+    old_lx = 0.0
+    old_rz = 0.0
+    
+    deadzone = 0.2
+    
     while True:
-        #Read controller input for the left joystick Y-axis
+        # Read controller input for the left joystick Y-axis
         ly_raw = controller.get_axis('ABS_Y')
         lx_raw = controller.get_axis('ABS_X')
         z_raw = controller.get_axis('ABS_Z')
         
-        ly = ServoControl.map_value(ly_raw, 0, 65535,-1 , 1)
-        lx = ServoControl.map_value(lx_raw, 0, 65535,-1 , 1)
-        rz = ServoControl.map_value(z_raw, 0, 65535,-1 , 1)
-
-        #g.walk(0.0,0.0,1.0,60.0,60.0)
-
+        ly = ServoControl.map_value(ly_raw, 0, 65535, -1, 1)
+        lx = ServoControl.map_value(lx_raw, 0, 65535, -1, 1)
+        rz = ServoControl.map_value(z_raw, 0, 65535, -1, 1)
+        
         # Apply a deadzone to ignore small movements
-        if abs(ly) < 0.2:
+        if abs(ly) < deadzone:
             ly = 0.0
-        if abs(lx) < 0.2:
+        if abs(lx) < deadzone:
             lx = 0.0
-        if abs(rz) < 0.2:
-             rz = 0.0
-        dog.pitch(ly*math.pi/4)
-        dog.roll(lx*math.pi/2)
-        dog.yaw(rz*math.pi/8)
-        dog.set_orientation()
+        if abs(rz) < deadzone:
+            rz = 0.0
+        
+        # Only trigger functions if the joystick has moved significantly
+        if abs(ly - old_ly) > 0.01:
+            dog.pitch(ly * math.pi / 2)
+            dog.set_orientation()
+            old_ly = ly
+        
+        if abs(lx - old_lx) > 0.01:
+            dog.roll(lx * math.pi / 2)
+            dog.set_orientation()
+            old_lx = lx
+        
+        if abs(rz - old_rz) > 0.01:
+            dog.yaw(rz * math.pi / 8)
+            dog.set_orientation()
+            old_rz = rz
+        time.sleep(0.1)
         
     
    
