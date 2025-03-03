@@ -83,19 +83,19 @@ def main():
         lx = ServoControl.map_value(lx_raw, 0, 65535,-1 , 1)
         rz = ServoControl.map_value(z_raw, 0, 65535,-1 , 1)
 
-        g.walk(0.0,0.0,1.0,60.0,60.0)
+        #g.walk(0.0,0.0,1.0,60.0,60.0)
 
         # Apply a deadzone to ignore small movements
-        # if abs(ly) < 0.2:
-        #     ly = 0.0
-        # if abs(lx) < 0.2:
-        #     lx = 0.0
-        # if abs(rz) < 0.2:
-        #      rz = 0.0
-        # dog.pitch(ly*math.pi/4)
-        # dog.roll(lx*math.pi/2)
-        # dog.yaw(rz*math.pi/8)
-        # dog.set_orientation()
+        if abs(ly) < 0.2:
+            ly = 0.0
+        if abs(lx) < 0.2:
+            lx = 0.0
+        if abs(rz) < 0.2:
+             rz = 0.0
+        dog.pitch(ly*math.pi/4)
+        dog.roll(lx*math.pi/2)
+        dog.yaw(rz*math.pi/8)
+        dog.set_orientation()
         
     
    

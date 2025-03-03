@@ -59,19 +59,19 @@ class RobotDog:
             x,y,z = LEGS_INTIAL_POSITIONS[i]
             match leg.id:
                 case 0:
-                    new_x = x + self.current_pitch_x + self.current_yaw_x
+                    new_x = x - self.current_pitch_x + self.current_yaw_x
                     new_y = y - self.current_roll_y + self.current_yaw_y
                     new_z = z - self.current_roll_z - self.current_pitch_z
                 case 1:
-                    new_x = x + self.current_pitch_x - self.current_yaw_x
+                    new_x = x - self.current_pitch_x - self.current_yaw_x
                     new_y = y - self.current_roll_y + self.current_yaw_y
                     new_z = z + self.current_roll_z - self.current_pitch_z
                 case 2:
-                    new_x = x + self.current_pitch_x + self.current_yaw_x
+                    new_x = x - self.current_pitch_x + self.current_yaw_x
                     new_y = y - self.current_roll_y - self.current_yaw_y
                     new_z = z - self.current_roll_z + self.current_pitch_z
                 case 3:
-                    new_x = x + self.current_pitch_x - self.current_yaw_x
+                    new_x = x - self.current_pitch_x - self.current_yaw_x
                     new_y = y - self.current_roll_y - self.current_yaw_y
                     new_z = z + self.current_roll_z + self.current_pitch_z
 
@@ -83,6 +83,9 @@ class RobotDog:
         try:
             delta_Y = 0.5 * self.body_width *( 1.0 - math.cos(alpha))
             delta_Z = math.sin(alpha) * 0.5 * self.body_width
+
+            if (alpha > 0.0):
+                delta_Y *= -1.0
             
             self.current_roll_y = delta_Y
             self.current_roll_z = delta_Z
@@ -94,7 +97,8 @@ class RobotDog:
         try:
             delta_X = 0.5 * self.body_length - 0.5 * self.body_length * math.cos(alpha)
             delta_Z = math.sin(alpha) * 0.5 * self.body_width
-
+            
+                
             self.current_pitch_x = delta_X
             self.current_pitch_z = delta_Z
             
