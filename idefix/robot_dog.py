@@ -13,8 +13,12 @@ class RobotDog:
         self.body_length = body_length
         self.body_width = body_width
         self.legs = []
-        self.current_position = [0.0, 0.0, 0.0]
-        self.current_rotation = [0.0, 0.0, 0.0]
+        self.current_pitch_z = 0.0
+        self.current_pitch_x = 0.0
+        self.current_yaw_x = 0.0
+        self.current_yaw_y = 0.0
+        self.current_roll_y = 0.0
+        self.current_roll_z = 0.0
         self.sc = ServoControl()
 
         for i in range(4):
@@ -86,30 +90,13 @@ class RobotDog:
         except Exception as e:
             print(f"Error in roll movement: {e}")
 
-    def pitch(self, positions: List[List[float]], alpha: float):
+    def pitch(self, alpha: float):
         try:
-            print(alpha/math.pi*180)
-            new_length = self.body_length * math.cos(abs(alpha))
-            height_diff = math.sqrt(self.body_length**2 - new_length**2)
-            x_offset = self.body_length - new_length
+            delta_X = 0.5 * self.body_length - 0.5 * self.body_length * math.cos(alpha)
+            delta_Z = math.sin(alpha) * 0.5 * self.body_width
 
-            new_positions = []
-
-            for i, position in enumerate(positions):
-                x, y, z = position
-
-                if i in [0, 1]:
-                    height = z - height_diff if alpha > 0 else z + height_diff
-                    world_X = x - x_offset 
-                else:
-                    height = z + height_diff if alpha > 0 else z - height_diff
-                    world_X = x + x_offset
-
-                new_Z = height * math.cos(abs(alpha))
-                from_foot_to_shoulder = math.sqrt(max(0, (world_X)**2 + height**2))
-                new_X = math.sqrt(max(0, from_foot_to_shoulder**2 - new_Z**2))
-                new_positions.append([new_X, y, new_Z])
-            return new_positions
+            self.current_pitch_x = delta_X
+            self.current_pitch_z = delta_Z
             
         except Exception as e:
             print(f"Error in pitch movement: {e}")
@@ -120,6 +107,11 @@ class RobotDog:
             delta_X = math.sin(alpha) * self.body_width * 0.5
             delta_Y = (math.cos(alpha)-1) * self.body_length * 0.5
 
+            
+            # if (abs(delta_Y) < 0.1): 
+            #     self.current_yaw_x = 0.0
+            #     self.current_yaw_y = 0.0
+            #     return
             if (alpha < 0):
                 delta_Y *= -1
             print(delta_X)
