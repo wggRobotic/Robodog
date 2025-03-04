@@ -79,41 +79,53 @@ def main():
     
     deadzone = 0.2
     
-    while True:
-        # Read controller input for the left joystick Y-axis
-        ly_raw = controller.get_axis('ABS_Y')
-        lx_raw = controller.get_axis('ABS_X')
-        z_raw = controller.get_axis('ABS_Z')
+    # while True:
+    #     # Read controller input for the left joystick Y-axis
+    #     ly_raw = controller.get_axis('ABS_Y')
+    #     lx_raw = controller.get_axis('ABS_X')
+    #     z_raw = controller.get_axis('ABS_Z')
         
-        ly = ServoControl.map_value(ly_raw, 0, 65535, -1, 1)
-        lx = ServoControl.map_value(lx_raw, 0, 65535, -1, 1)
-        rz = ServoControl.map_value(z_raw, 0, 65535, -1, 1)
+    #     ly = ServoControl.map_value(ly_raw, 0, 65535, -1, 1)
+    #     lx = ServoControl.map_value(lx_raw, 0, 65535, -1, 1)
+    #     rz = ServoControl.map_value(z_raw, 0, 65535, -1, 1)
         
-        # Apply a deadzone to ignore small movements
-        if abs(ly) < deadzone:
-            ly = 0.0
-        if abs(lx) < deadzone:
-            lx = 0.0
-        if abs(rz) < deadzone:
-            rz = 0.0
+    #     # Apply a deadzone to ignore small movements
+    #     if abs(ly) < deadzone:
+    #         ly = 0.0
+    #     if abs(lx) < deadzone:
+    #         lx = 0.0
+    #     if abs(rz) < deadzone:
+    #         rz = 0.0
         
-        # Only trigger functions if the joystick has moved significantly
-        if abs(ly - old_ly) > 0.01:
-            dog.pitch(ly * math.pi / 2)
-            dog.set_orientation()
-            old_ly = ly
+    #     # Only trigger functions if the joystick has moved significantly
+    #     # if abs(ly - old_ly) > 0.01:
+    #     #     dog.pitch(ly * math.pi / 2)
+    #     #     dog.set_orientation()
+    #     #     old_ly = ly
         
-        if abs(lx - old_lx) > 0.01:
-            dog.roll(lx * math.pi / 2)
-            dog.set_orientation()
-            old_lx = lx
+    #     if abs(lx - old_lx) > 0.01:
+    #         roll_position = dog.roll2(lx * math.pi / 2,LEGS_INTIAL_POSITIONS)
+    #         #dog.move_legs(roll_position)
+    #         #dog.set_orientation()
+    #         old_lx = lx
         
-        if abs(rz - old_rz) > 0.01:
-            dog.yaw(rz * math.pi / 8)
-            dog.set_orientation()
-            old_rz = rz
-        time.sleep(0.1)
-        
+    #     # if abs(rz - old_rz) > 0.01:
+    #     #     dog.yaw(rz * math.pi / 8)
+    #     #     dog.set_orientation()
+    #     #     old_rz = rz
+    #     time.sleep(0.1)
+    print(LEGS_INTIAL_POSITIONS)
+    print("--------------------")
+    yaw_position = dog.yaw2(-10/180*math.pi,LEGS_INTIAL_POSITIONS)
+    #roll_position = dog.roll2(-60/180*math.pi,LEGS_INTIAL_POSITIONS)
+    #pitch_position = dog.pitch2(0/180*math.pi,roll_position)
+    #a ,b, c= dog.legs[0].inverseKin(*pitch_position[0])
+    #a2 ,b2, c2 = dog.legs[1].inverseKin(*pitch_position[1])
+    #dog.legs[0].move(a,b,c)
+    #dog.legs[1].move(a2,b2,c2)
+
+    dog.move_legs(yaw_position)
+    print(yaw_position)
     
    
 
