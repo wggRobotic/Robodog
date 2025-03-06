@@ -62,6 +62,12 @@ class RobotDog:
         for i in range(4):
             self.legs[i].move(*angles[i])
             self.legs[i].current_position = targets[i]
+    def get_leg_positions(self)->List[List[float]]:
+        leg_positions = []
+        for leg in self.legs:
+            leg_positions.append(leg.current_position)
+        return leg_positions
+            
 
     def set_orientation(self):
         new_positions = []
@@ -134,35 +140,35 @@ class RobotDog:
     def roll2(self, alpha, position: List[List[float]]) -> List[List[float]]:
         delta_z = math.sin(alpha) * self.body_width / 2
         roll_positions = []
-        print(f"delata_z: {delta_z}, roll_positions: {roll_positions}")
+        #print(f"delata_z: {delta_z}, roll_positions: {roll_positions}")
         for i, leg in enumerate(self.legs):
             x, y, z = position[i]
-            print(f"Input_X: {x}, Input_Y: {y}, Input_Z: {z}")
+            #print(f"Input_X: {x}, Input_Y: {y}, Input_Z: {z}")
             world_z1 = z - delta_z
             world_z2 = z + delta_z
-            print(f"worldZ1: {world_z1}, worldZ2: {world_z2}")
+            #print(f"worldZ1: {world_z1}, worldZ2: {world_z2}")
             match leg.id:
                 case 0:
                     y_distance_world = self.body_width / 2 + y
-                    print(f"y_distance: {y_distance_world}")
+                    #print(f"y_distance: {y_distance_world}")
                     g = y_distance_world - math.cos(alpha) * (self.body_width / 2)
-                    print(f"g: {g}")
+                    #print(f"g: {g}")
                     d2 = math.sqrt(world_z2**2 + g**2)
-                    print(f"d2: {d2}")
+                    #print(f"d2: {d2}")
                     beta2 = math.atan(g / world_z2)
-                    print(f"beta2: {beta2/math.pi*180}")
+                    #print(f"beta2: {beta2/math.pi*180}")
                     z = math.cos(alpha - beta2) * d2
                     y =- math.sin(alpha - beta2) * d2 
                     roll_positions.append([x, y, z])
                 case 1:
                     y_distance_world = self.body_width / 2 - y
-                    print(f"y_distance: {y_distance_world}")
+                    #print(f"y_distance: {y_distance_world}")
                     g = y_distance_world - math.cos(alpha) * self.body_width / 2
-                    print(f"g: {g}")
+                    #print(f"g: {g}")
                     d1 = math.sqrt(world_z1**2 + g**2)
-                    print(f"d1: {d1}")
+                    #print(f"d1: {d1}")
                     beta1 = math.atan(g / world_z1)
-                    print(f"beta1: {beta1/math.pi*180}")
+                    #print(f"beta1: {beta1/math.pi*180}")
                     z = math.cos(alpha + beta1) * d1
                     y =- math.sin(alpha + beta1) * d1
                     roll_positions.append([x, y, z])
@@ -189,35 +195,35 @@ class RobotDog:
     def pitch2(self, alpha, position: List[List[float]]) -> List[List[float]]:
         delta_z = math.sin(alpha) * self.body_length / 2
         pitch_positions = []
-        print(f"delata_z: {delta_z}, roll_positions: {pitch_positions}")
+        #print(f"delata_z: {delta_z}, roll_positions: {pitch_positions}")
         for i, leg in enumerate(self.legs):
             x, y, z = position[i]
-            print(f"Input_X: {x}, Input_Y: {y}, Input_Z: {z}")
+            #print(f"Input_X: {x}, Input_Y: {y}, Input_Z: {z}")
             world_z1 = z - delta_z
             world_z2 = z + delta_z
-            print(f"worldZ1: {world_z1}, worldZ2: {world_z2}")
+            #print(f"worldZ1: {world_z1}, worldZ2: {world_z2}")
             match leg.id:
                 case 0:
                     x_distance_world = self.body_length / 2 + x
-                    print(f"y_distance: {x_distance_world}")
+                    #print(f"y_distance: {x_distance_world}")
                     g = x_distance_world - math.cos(alpha) * (self.body_length / 2)
-                    print(f"g: {g}")
+                    #print(f"g: {g}")
                     d2 = math.sqrt(world_z2**2 + g**2)
-                    print(f"d2: {d2}")
+                    #print(f"d2: {d2}")
                     beta2 = math.atan(g / world_z2)
-                    print(f"beta2: {beta2/math.pi*180}")
+                    #print(f"beta2: {beta2/math.pi*180}")
                     z = math.cos(alpha - beta2) * d2
                     x =- math.sin(alpha - beta2) * d2 
                     pitch_positions.append([x, y, z])
                 case 2:
                     x_distance_world = self.body_length / 2 - x
-                    print(f"y_distance: {x_distance_world}")
+                    #print(f"y_distance: {x_distance_world}")
                     g = x_distance_world - math.cos(alpha) * self.body_length / 2
-                    print(f"g: {g}")
+                    #print(f"g: {g}")
                     d1 = math.sqrt(world_z1**2 + g**2)
-                    print(f"d1: {d1}")
+                    #print(f"d1: {d1}")
                     beta1 = math.atan(g / world_z1)
-                    print(f"beta1: {beta1/math.pi*180}")
+                    #print(f"beta1: {beta1/math.pi*180}")
                     z = math.cos(alpha + beta1) * d1
                     x =- math.sin(alpha + beta1) * d1
                     pitch_positions.append([x, y, z])
@@ -244,7 +250,7 @@ class RobotDog:
         yaw_positions= []
         for i, leg in enumerate(self.legs):
             x, y, z = position[i]
-            print(leg.id)
+            #print(leg.id)
             match leg.id:
                 case 0:
                     x_distance = self.body_length/2 + x

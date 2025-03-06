@@ -9,7 +9,7 @@ class RobotLeg:
         self.upper_leg_length = upper_leg_length
         self.lower_leg_length = lower_leg_length
         self.hip_to_shoulder = hip_to_shoulder
-        self.current_position = initial_position
+        self.current_position = initial_position 
         self.servo_ids = servo_ids
         self.sc = sc
 
@@ -87,7 +87,7 @@ class RobotLeg:
     
     def deactivate_leg(self,deactivate:bool):
         for i in self.servo_ids:
-            self.sc.enable_torque(i , not deactivate)
+            self.sc.enable_torque(i , deactivate)
                 
 
     def move(self, elbow_angle: float, shoulder_angle: float, hip_angle: float):

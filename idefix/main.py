@@ -11,7 +11,6 @@ from idefix.gait import Gait
 from idefix.xbox_controller import XboxController
 from idefix.robot_constants import *
 
-
 def main():
     sc = ServoControl()
     controller = XboxController()
@@ -76,12 +75,17 @@ def main():
     old_ly = 0.0
     old_lx = 0.0
     old_rz = 0.0
+    a_lock = False
+    b_lock = False
+    active = True
     
     deadzone = 0.2
     
     # while True:
     #     # Read controller input for the left joystick Y-axis
     #     ly_raw = controller.get_axis('ABS_Y')
+    #     a = controller.get_button('BTN_SOUTH')
+    #     b = controller.get_button('BTN_EAST')
     #     lx_raw = controller.get_axis('ABS_X')
     #     z_raw = controller.get_axis('ABS_Z')
         
@@ -97,35 +101,36 @@ def main():
     #     if abs(rz) < deadzone:
     #         rz = 0.0
         
-    #     # Only trigger functions if the joystick has moved significantly
-    #     # if abs(ly - old_ly) > 0.01:
-    #     #     dog.pitch(ly * math.pi / 2)
-    #     #     dog.set_orientation()
-    #     #     old_ly = ly
+    #     yaw_positions = dog.yaw2(rz*20/180*math.pi,LEGS_INTIAL_POSITIONS)
+    #     roll_position = dog.roll2(lx*60/180*math.pi, yaw_positions)
+    #     pitch_positions = dog.pitch2(ly*40/180*math.pi, roll_position)
+    #     if (active):
+    #         dog.move_legs(pitch_positions)
         
-    #     if abs(lx - old_lx) > 0.01:
-    #         roll_position = dog.roll2(lx * math.pi / 2,LEGS_INTIAL_POSITIONS)
-    #         #dog.move_legs(roll_position)
-    #         #dog.set_orientation()
-    #         old_lx = lx
+    #     # Emergency stop ;)
+    #     if(a==1 and not a_lock):
+    #         a_lock = True
+    #         active = True
+    #         for leg in dog.legs:
+    #             leg.deactivate_leg(True)
+    #         a_lock = False
+            
+    #     if(b==1 and not b_lock):
+    #         b_lock = True
+    #         active = False
+    #         for leg in dog.legs:
+    #             leg.deactivate_leg(False)
+    #         b_lock = False
         
-    #     # if abs(rz - old_rz) > 0.01:
-    #     #     dog.yaw(rz * math.pi / 8)
-    #     #     dog.set_orientation()
-    #     #     old_rz = rz
     #     time.sleep(0.1)
-    print(LEGS_INTIAL_POSITIONS)
-    print("--------------------")
-    yaw_position = dog.yaw2(-10/180*math.pi,LEGS_INTIAL_POSITIONS)
-    #roll_position = dog.roll2(-60/180*math.pi,LEGS_INTIAL_POSITIONS)
-    #pitch_position = dog.pitch2(0/180*math.pi,roll_position)
-    #a ,b, c= dog.legs[0].inverseKin(*pitch_position[0])
-    #a2 ,b2, c2 = dog.legs[1].inverseKin(*pitch_position[1])
-    #dog.legs[0].move(a,b,c)
-    #dog.legs[1].move(a2,b2,c2)
-
-    dog.move_legs(yaw_position)
-    print(yaw_position)
+    push_back=g.walk(50.0,0.0,0.0,2.0,30.0)
+    while True:
+         for push in push_back:
+            #print(push)
+            dog.move_legs(push)
+            time.sleep(0.1)
+    # # for leg in dog.legs:
+    #     leg.deactivate_leg(True)
     
    
 
