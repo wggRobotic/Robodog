@@ -1,7 +1,6 @@
-
 BAUDRATE = 1000000
-DEVICE_NAME_FRONT = '/dev/board_front'
-DEVICE_NAME_BACK = '/dev/board_back'
+DEVICE_NAME_FRONT = "/dev/board_front"
+DEVICE_NAME_BACK = "/dev/board_back"
 
 STS_MOVING_SPEED = 2400
 STS_MOVING_ACC = 50
@@ -21,27 +20,40 @@ LEG_IDS = [
 ]
 
 
-
-
-
-LEGS_INTIAL_POSITIONS = [
-    [-20.0,HIP_TO_SHOULDER,180.0],
-    [-20.0,-HIP_TO_SHOULDER,180.0],
-    [0.0,HIP_TO_SHOULDER,180.0],
-    [0.0,-HIP_TO_SHOULDER,180.0],   
+LEGS_INITIAL_POSITIONS = [
+    [-20.0, HIP_TO_SHOULDER, 180.0],
+    [-20.0, -HIP_TO_SHOULDER, 180.0],
+    [0.0, HIP_TO_SHOULDER, 180.0],
+    [0.0, -HIP_TO_SHOULDER, 180.0],
 ]
 
 
 SERVOS_MIN_VALUE = [
-    1237, 0, 1242,
-    954, 0, 979,
-    1539, 0, 847,
-    1287, 0, 817,
+    1237,
+    0,
+    1242,
+    954,
+    0,
+    979,
+    1539,
+    0,
+    847,
+    1287,
+    0,
+    817,
 ]
 
 SERVOS_MAX_VALUE = [
-    3345, 4095, 3230,
-    2881, 4095, 2612,
-    3344, 4095, 2842,
-    3161, 4095, 2598,
+    3345,
+    4095,
+    3230,
+    2881,
+    4095,
+    2612,
+    3344,
+    4095,
+    2842,
+    3161,
+    4095,
+    2598,
 ]

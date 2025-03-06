@@ -2,14 +2,23 @@ import math
 from typing import List
 from idefix.servo_control import *
 
+
 class RobotLeg:
-    def __init__(self, id: int, upper_leg_length: float, lower_leg_length: float, hip_to_shoulder: float,
-                 servo_ids: List[int], initial_position: List[float], sc: ServoControl):
+    def __init__(
+        self,
+        id: int,
+        upper_leg_length: float,
+        lower_leg_length: float,
+        hip_to_shoulder: float,
+        servo_ids: List[int],
+        initial_position: List[float],
+        sc: ServoControl,
+    ):
         self.id = id
         self.upper_leg_length = upper_leg_length
         self.lower_leg_length = lower_leg_length
         self.hip_to_shoulder = hip_to_shoulder
-        self.current_position = initial_position 
+        self.current_position = initial_position
         self.servo_ids = servo_ids
         self.sc = sc
 
@@ -37,13 +46,21 @@ class RobotLeg:
             distance = math.sqrt(distance_squared)
             delta_beta = math.atan2(x, shoulder_to_foot)
 
-            acos_arg1 = (self.upper_leg_length**2 + self.lower_leg_length**2 - distance**2) / (2 * self.upper_leg_length * self.lower_leg_length)
-            acos_arg2 = (self.upper_leg_length**2 - self.lower_leg_length**2 + distance**2) / (2 * self.upper_leg_length * distance)
+            acos_arg1 = (
+                self.upper_leg_length**2 + self.lower_leg_length**2 - distance**2
+            ) / (2 * self.upper_leg_length * self.lower_leg_length)
+            acos_arg2 = (
+                self.upper_leg_length**2 - self.lower_leg_length**2 + distance**2
+            ) / (2 * self.upper_leg_length * distance)
 
             if not (-1 <= acos_arg1 <= 1):
-                raise ValueError(f"Invalid acos argument for alpha: {acos_arg1} (Leg ID: {self.id})")
+                raise ValueError(
+                    f"Invalid acos argument for alpha: {acos_arg1} (Leg ID: {self.id})"
+                )
             if not (-1 <= acos_arg2 <= 1):
-                raise ValueError(f"Invalid acos argument for beta: {acos_arg2} (Leg ID: {self.id})")
+                raise ValueError(
+                    f"Invalid acos argument for beta: {acos_arg2} (Leg ID: {self.id})"
+                )
 
             alpha = math.acos(acos_arg1)
             beta = math.acos(acos_arg2) - delta_beta
@@ -57,16 +74,16 @@ class RobotLeg:
         except Exception as e:
             print(f"Unexpected error: {e} (Leg ID: {self.id})")
             return [None, None, None]
-        
+
     def get_angles(self):
         leg_angles = []
-        
+
         for i in self.servo_ids:
             angle = self.sc.get_angle(i)
             leg_angles.append(angle)
-        
+
         elbow_angle, shoulder_angle, hip_angle = leg_angles
-        
+
         match self.id:
             case 0:
                 elbow_angle = 2 * math.pi - elbow_angle
@@ -82,19 +99,18 @@ class RobotLeg:
             case 3:
                 shoulder_angle -= 0.5 * math.pi
                 hip_angle = 1.5 * math.pi - hip_angle
-        
+
         return [elbow_angle, shoulder_angle, hip_angle]
-    
-    def deactivate_leg(self,deactivate:bool):
+
+    def deactivate_leg(self, deactivate: bool):
         for i in self.servo_ids:
-            self.sc.enable_torque(i , deactivate)
-                
+            self.sc.enable_torque(i, deactivate)
 
     def move(self, elbow_angle: float, shoulder_angle: float, hip_angle: float):
         try:
             if None in [elbow_angle, shoulder_angle, hip_angle]:
                 raise ValueError("Received None values for angles.")
-            
+
             match self.id:
                 case 0:
                     elbow_angle = 2 * math.pi - elbow_angle
@@ -110,12 +126,14 @@ class RobotLeg:
                 case 3:
                     shoulder_angle += 0.5 * math.pi
                     hip_angle = 1.5 * math.pi - hip_angle
-                
-            for servo_id, angle in zip(self.servo_ids, [elbow_angle, shoulder_angle, hip_angle]):
+
+            for servo_id, angle in zip(
+                self.servo_ids, [elbow_angle, shoulder_angle, hip_angle]
+            ):
                 if not (0 <= angle <= 2 * math.pi):
                     raise ValueError(f"Angle out of range: {angle} (Leg ID: {self.id})")
                 self.sc.set_pos(servo_id, angle)
-            
+
             self.sc.move_positions()
         except ValueError as e:
             print(f"Error in move: {e} (Leg ID: {self.id})")
