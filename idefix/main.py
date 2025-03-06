@@ -123,12 +123,12 @@ def main():
     #         b_lock = False
         
     #     time.sleep(0.1)
-    push_back=g.walk(50.0,0.0,0.0,2.0,30.0)
+    push_back=g.walk(50.0,0.0,0.0,2.0,60.0)
     while True:
          for push in push_back:
             #print(push)
             dog.move_legs(push)
-            time.sleep(0.1)
+            time.sleep(0.15)
     # # for leg in dog.legs:
     #     leg.deactivate_leg(True)
     

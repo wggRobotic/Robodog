@@ -65,7 +65,7 @@ class Gait:
             for position in leg_positions:
                 x , y, z = position
                 z -= math.sin(math.pi*i/peaces) * step_height 
-                new_positions.append([x + delta_x*i, y + delta_y*i,z])
+                new_positions.append([x - delta_x*peaces/2 + delta_x*i, y-delta_y*peaces/2 + delta_y*i,z])
             push_back.append(new_positions)
 
         #moves legs down
@@ -76,15 +76,14 @@ class Gait:
             new_positions = []
             for position in leg_positions:
                 x , y, z = position
-                new_positions.append([x + delta_x*(i/peaces*3), y + delta_y*(i/peaces*3),z])
+                new_positions.append([x - delta_x*peaces/2 + delta_x*(i/peaces*3), y - delta_y*peaces/2 + delta_y*(i/peaces*3),z])
             push_back.append(new_positions)    
-        
+        #makes legs async
         shifted_push_back=self.shift_columns(push_back,[0,peaces*3,peaces*2,peaces*1])
-        print(len(shifted_push_back))
-        print("---")
+        #inserts moments where all 4 legs are touching the ground
         for i in range(3,-1,-1):
             push = []
-            print(i)
+            
             for j, position in enumerate(shifted_push_back[i*peaces]):
                 should_x,should_y,should_z = position
                 is_x, is_y, is_z = self.dog.legs[j].current_position
