@@ -14,12 +14,6 @@ class RobotDog:
         self.body_length = body_length
         self.body_width = body_width
         self.legs = []
-        self.current_pitch_z = 0.0
-        self.current_pitch_x = 0.0
-        self.current_yaw_x = 0.0
-        self.current_yaw_y = 0.0
-        self.current_roll_y = 0.0
-        self.current_roll_z = 0.0
         self.sc = ServoControl()
 
         for i in range(4):
@@ -62,6 +56,7 @@ class RobotDog:
         for i in range(4):
             self.legs[i].move(*angles[i])
             self.legs[i].current_position = targets[i]
+
     def get_leg_positions(self)->List[List[float]]:
         leg_positions = []
         for leg in self.legs:
@@ -69,75 +64,7 @@ class RobotDog:
         return leg_positions
             
 
-    def set_orientation(self):
-        new_positions = []
-        for i, leg in enumerate(self.legs):
-            x, y, z = LEGS_INTIAL_POSITIONS[i]
-            match leg.id:
-                case 0:
-                    new_x = x - self.current_pitch_x + self.current_yaw_x
-                    new_y = y - self.current_roll_y + self.current_yaw_y
-                    new_z = z - self.current_roll_z - self.current_pitch_z
-                case 1:
-                    new_x = x - self.current_pitch_x - self.current_yaw_x
-                    new_y = y - self.current_roll_y + self.current_yaw_y
-                    new_z = z + self.current_roll_z - self.current_pitch_z
-                case 2:
-                    new_x = x - self.current_pitch_x + self.current_yaw_x
-                    new_y = y - self.current_roll_y - self.current_yaw_y
-                    new_z = z - self.current_roll_z + self.current_pitch_z
-                case 3:
-                    new_x = x - self.current_pitch_x - self.current_yaw_x
-                    new_y = y - self.current_roll_y - self.current_yaw_y
-                    new_z = z + self.current_roll_z + self.current_pitch_z
-
-            new_positions.append([new_x, new_y, new_z])
-        self.move_legs(new_positions)
-
-    def roll(self, alpha: float):
-        try:
-            delta_Y = 0.5 * self.body_width * (1.0 - math.cos(alpha))
-            delta_Z = math.sin(alpha) * 0.5 * self.body_width
-
-            if alpha > 0.0:
-                delta_Y *= -1.0
-
-            self.current_roll_y = delta_Y
-            self.current_roll_z = delta_Z
-            # print(f"delta_Y:{delta_Y}, delta_Z: {delta_Z}")
-        except Exception as e:
-            print(f"Error in roll movement: {e}")
-
-    def pitch(self, alpha: float):
-        try:
-            delta_X = 0.5 * self.body_length - 0.5 * self.body_length * math.cos(alpha)
-            delta_Z = math.sin(alpha) * 0.5 * self.body_width
-
-            self.current_pitch_x = delta_X
-            self.current_pitch_z = delta_Z
-
-        except Exception as e:
-            print(f"Error in pitch movement: {e}")
-
-    def yaw(self, alpha: float):
-        try:
-            alpha = alpha * 4
-            delta_X = math.sin(alpha) * self.body_width * 0.5
-            delta_Y = (math.cos(alpha) - 1) * self.body_length * 0.5
-
-            # if (abs(delta_Y) < 0.1):
-            #     self.current_yaw_x = 0.0
-            #     self.current_yaw_y = 0.0
-            #     return
-            if alpha < 0:
-                delta_Y *= -1
-            self.current_yaw_x = delta_X
-            self.current_yaw_y = delta_Y
-
-        except Exception as e:
-            print(f"Error in yaw movement: {e}")
-
-    def roll2(self, alpha, position: List[List[float]]) -> List[List[float]]:
+    def roll(self, alpha, position: List[List[float]]) -> List[List[float]]:
         delta_z = math.sin(alpha) * self.body_width / 2
         roll_positions = []
         #print(f"delata_z: {delta_z}, roll_positions: {roll_positions}")
@@ -192,7 +119,7 @@ class RobotDog:
         return roll_positions
     
 
-    def pitch2(self, alpha, position: List[List[float]]) -> List[List[float]]:
+    def pitch(self, alpha, position: List[List[float]]) -> List[List[float]]:
         delta_z = math.sin(alpha) * self.body_length / 2
         pitch_positions = []
         #print(f"delata_z: {delta_z}, roll_positions: {pitch_positions}")
@@ -246,7 +173,7 @@ class RobotDog:
 
         return pitch_positions
     
-    def yaw2(self, alpha, position: List[List[float]]) -> List[List[float]]:
+    def yaw(self, alpha, position: List[List[float]]) -> List[List[float]]:
         yaw_positions= []
         for i, leg in enumerate(self.legs):
             x, y, z = position[i]
