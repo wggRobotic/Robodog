@@ -123,6 +123,8 @@ def main():
     #         b_lock = False
         
     #     time.sleep(0.1)
+    picth_pos= dog.pitch(-2/180*math.pi,LEGS_INTIAL_POSITIONS)
+    dog.move_legs(picth_pos)
     push_back=g.walk(50.0,0.0,0.0,2.0,60.0)
     while True:
          for push in push_back:

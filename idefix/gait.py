@@ -50,7 +50,7 @@ class Gait:
 
     def walk(self, lin_x: float, lin_y: float, ang_z: float, step_length: float, step_height: float):
         gait_sequence = [0, 3, 1, 2]  # Order in which the legs move
-        peaces = 8
+        peaces = 20
         push_back = []
     
         delta_x = lin_x/8 
@@ -88,6 +88,8 @@ class Gait:
                 should_x,should_y,should_z = position
                 is_x, is_y, is_z = self.dog.legs[j].current_position
                 push.append([should_x,should_y,is_z])
+            shifted_push_back.insert(i*peaces,push)
+            shifted_push_back.insert(i*peaces,push)
             shifted_push_back.insert(i*peaces,push)
             
 
