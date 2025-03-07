@@ -21,10 +21,10 @@ LEG_IDS = [
 
 
 LEGS_INITIAL_POSITIONS = [
-    [-20.0, HIP_TO_SHOULDER, 180.0],
-    [-20.0, -HIP_TO_SHOULDER, 180.0],
-    [0.0, HIP_TO_SHOULDER, 180.0],
-    [0.0, -HIP_TO_SHOULDER, 180.0],
+    [-20.0, HIP_TO_SHOULDER, 150.0],
+    [-20.0, -HIP_TO_SHOULDER, 150.0],
+    [0.0, HIP_TO_SHOULDER, 150.0],
+    [0.0, -HIP_TO_SHOULDER, 150.0],
 ]
 
 
@@ -34,7 +34,7 @@ SERVOS_MIN_VALUE = [
     1242,
     954,
     0,
-    979,
+    820,
     1539,
     0,
     847,
@@ -57,3 +57,7 @@ SERVOS_MAX_VALUE = [
     4095,
     2598,
 ]
+
+OFFSETS_MAGNETOMETER = (-55,-35,-236)
+OFFSETS_GYROSCOPE = (-1,-2,0)
+OFFSETS_ACCELEROMETER = (-33,-90,32)

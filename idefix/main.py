@@ -2,6 +2,7 @@ import sys
 import time
 import curses
 import math
+import board
 
 sys.path.append("..")
 from idefix.servo_control import ServoControl
@@ -10,6 +11,7 @@ from idefix.robot_dog import RobotDog
 from idefix.gait import Gait
 from idefix.xbox_controller import XboxController
 from idefix.robot_constants import *
+from idefix.imu import IMU
 
 
 def main():
@@ -61,16 +63,8 @@ def main():
     #         [0.0,-HIP_TO_SHOULDER +50.0,160.0],#3
     #     ], 5
     # )
-    # dog.pitch(27/180*math.pi)
-    # dog.set_orientation()
-    # dog.pitch(27/180*math.pi)
-
-    # dog.roll(27/180*math.pi)
-    # dog.roll(27/180*math.pi)
-
-    # dog.yaw(27/180*math.pi)
-    # dog.yaw(27/180*math.pi)
-
+    i2c = board.I2C()
+    imu = IMU(i2c, window_size=3, threshold=120.0)
     g = Gait(dog)
     old_ly = 0.0
     old_lx = 0.0
@@ -123,14 +117,25 @@ def main():
     #         b_lock = False
 
     #     time.sleep(0.1)
-    pitch_pos = dog.pitch(-2 / 180 * math.pi, LEGS_INITIAL_POSITIONS)
-    dog.move_legs(pitch_pos)
-    push_back = g.walk(50.0, 0.0, 0.0, 2.0, 60.0)
+    #pitch_pos = dog.pitch(-2 / 180 * math.pi, LEGS_INITIAL_POSITIONS)
+    #dog.move_legs(pitch_pos)
+    # push_back = g.walk(50.0, 0.0, 0.0, 2.0, 30.0,8)
+    # while True:
+    #     for push in push_back:
+    #         # print(push)
+    #         dog.move_legs(push)
+    #         time.sleep(0.1)
+    
     while True:
-        for push in push_back:
-            # print(push)
-            dog.move_legs(push)
-            time.sleep(0.15)
+        angles = imu.get_filtered_euler_angles()
+        if angles:
+            roll, pitch, yaw = angles
+            print(f"Filtered Euler angles: Roll={roll:.2f}°, Pitch={pitch:.2f}°, Yaw={yaw:.2f}°")
+            new_pos = dog.pitch( -pitch/180*math.pi, dog.roll(-roll/180*math.pi,LEGS_INITIAL_POSITIONS))
+            dog.move_legs(new_pos)
+            
+
+
     # # for leg in dog.legs:
     #     leg.deactivate_leg(True)
 

@@ -2,6 +2,8 @@ import math
 from STservo_sdk import *  # Uses STServo SDK library
 from idefix.robot_constants import *
 
+from idefix.utilities import map_value
+
 
 class ServoControl:
     def __init__(self):
@@ -53,7 +55,7 @@ class ServoControl:
     def set_pos(self, id: int, angle: float):
         packetHandler = self.packetHandlerFront if id <= 6 else self.packetHandlerBack
         # Map angle to servo position
-        servo_position = int(self.map_value(angle, 0, math.pi * 2, 0, 4095))
+        servo_position = int(map_value(angle, 0, math.pi * 2, 0, 4095))
         # Prevents mechanical damage
         if servo_position < SERVOS_MIN_VALUE[id - 1]:
             servo_position = SERVOS_MIN_VALUE[id - 1]
@@ -103,6 +105,4 @@ class ServoControl:
             state_text = "enabled" if torque_value == TORQUE_ENABLE else "disabled"
             print(f"Torque {state_text} for Servo ID {id}")
 
-    @staticmethod
-    def map_value(x, in_min, in_max, out_min, out_max):
-        return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+    

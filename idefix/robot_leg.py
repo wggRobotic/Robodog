@@ -1,6 +1,6 @@
 import math
 from typing import List
-from idefix.servo_control import *
+from idefix.servo_control import ServoControl
 
 
 class RobotLeg:
@@ -65,6 +65,8 @@ class RobotLeg:
             alpha = math.acos(acos_arg1)
             beta = math.acos(acos_arg2) - delta_beta
             gamma = gamma1 + gamma2
+
+            
 
             return [alpha, beta, gamma]
 
