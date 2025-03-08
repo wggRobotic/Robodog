@@ -127,14 +127,23 @@ def main():
     #         time.sleep(0.1)
     
     while True:
-        angles = imu.get_filtered_euler_angles()
-        if angles:
-            roll, pitch, yaw = angles
-            print(f"Filtered Euler angles: Roll={roll:.2f}°, Pitch={pitch:.2f}°, Yaw={yaw:.2f}°")
-            new_pos = dog.pitch( -pitch/180*math.pi, dog.roll(-roll/180*math.pi,LEGS_INITIAL_POSITIONS))
-            dog.move_legs(new_pos)
-            
-
+        #angles = imu.get_filtered_euler_angles()
+        # if angles:
+        #     roll, pitch, yaw = angles
+        #     print(f"Filtered Euler angles: Roll={roll:.2f}°, Pitch={pitch:.2f}°, Yaw={yaw:.2f}°")
+        #     new_pos = dog.pitch( -pitch/180*math.pi, dog.roll(-roll/180*math.pi,LEGS_INITIAL_POSITIONS))
+        #     dog.move_legs(new_pos)
+        
+        sum = 0
+        for leg in dog.legs:
+            sum +=leg.get_present_current_sum()
+        #print(sum)
+        if sum > 13:
+            print("Down")
+        else:
+            print("Up")
+        time.sleep(0.1)
+        
 
     # # for leg in dog.legs:
     #     leg.deactivate_leg(True)

@@ -105,4 +105,36 @@ class ServoControl:
             state_text = "enabled" if torque_value == TORQUE_ENABLE else "disabled"
             print(f"Torque {state_text} for Servo ID {id}")
 
+    def get_load(self, id: int):
+            packetHandler = self.packetHandlerFront if id <= 6 else self.packetHandlerBack
+            load_low, result_low, error_low = packetHandler.read1ByteTxRx(id, STS_PRESENT_LOAD_L)
+            load_high, result_high, error_high = packetHandler.read1ByteTxRx(id, STS_PRESENT_LOAD_H)
+            
+            if result_low == COMM_SUCCESS and result_high == COMM_SUCCESS:
+                load = (load_high << 8) + load_low
+            # print(f"Servo ID {id} Load: {load}")
+                return load
+            else:
+                if result_low != COMM_SUCCESS:
+                    print(f"Error reading load low byte: {packetHandler.getTxRxResult(result_low)}")
+                if result_high != COMM_SUCCESS:
+                    print(f"Error reading load high byte: {packetHandler.getTxRxResult(result_high)}")
+                return None
+
+    def get_present_current(self, id: int):
+            packetHandler = self.packetHandlerFront if id <= 6 else self.packetHandlerBack
+            current_low, result_low, error_low = packetHandler.read1ByteTxRx(id, STS_PRESENT_CURRENT_L)
+            current_high, result_high, error_high = packetHandler.read1ByteTxRx(id, STS_PRESENT_CURRENT_H)
+            
+            if result_low == COMM_SUCCESS and result_high == COMM_SUCCESS:
+                current = (current_high << 8) + current_low
+            # print(f"Servo ID {id} current: {current}")
+                return current
+            else:
+                if result_low != COMM_SUCCESS:
+                    print(f"Error reading current low byte: {packetHandler.getTxRxResult(result_low)}")
+                if result_high != COMM_SUCCESS:
+                    print(f"Error reading current high byte: {packetHandler.getTxRxResult(result_high)}")
+                return None
+
     
