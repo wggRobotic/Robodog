@@ -136,5 +136,7 @@ class ServoControl:
                 if result_high != COMM_SUCCESS:
                     print(f"Error reading current high byte: {packetHandler.getTxRxResult(result_high)}")
                 return None
-
-    
+            
+    def read_movement(self, id):
+        packetHandler = self.packetHandlerFront if id <= 6 else self.packetHandlerBack
+        return packetHandler.ReadMoving(id)

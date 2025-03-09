@@ -8,9 +8,11 @@ sys.path.append("..")
 from idefix.robot_constants import *
 
 class IMU:
-    def __init__(self, i2c, window_size=5, threshold=5.0):
+    def __init__(self, i2c, window_size=5, threshold=5.0, pitch_offset=0.0, roll_offset=0.0):
         """Initializes the BNO055 sensor and the filter buffers."""
         self.sensor = adafruit_bno055.BNO055_I2C(i2c)
+        self.pitch_offset = pitch_offset
+        self.roll_offset = roll_offset
         
         # Set the sensor offsets that you obtained from calibration
         self.sensor.offsets_gyroscope = OFFSETS_GYROSCOPE
@@ -91,6 +93,20 @@ class IMU:
 
             # Apply filtering to the Euler angles
             roll, pitch, yaw = self.filter_euler_angles(roll, pitch, yaw)
+
+            return pitch-self.roll_offset , roll- self.pitch_offset, yaw
+        return None
+    
+    def get_raw_euler_angles(self):
+        """Reads quaternions, converts them to Euler angles, and applies offsets without filtering."""
+        quat = self.sensor.quaternion
+        if quat is not None:
+            w, x, y, z = quat
+            roll, pitch, yaw = self.quaternion_to_euler(w, x, y, z)
+
+            # Apply offsets
+            roll -= self.pitch_offset
+            pitch -= self.roll_offset
 
             return pitch, roll, yaw
         return None

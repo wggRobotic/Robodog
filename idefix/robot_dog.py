@@ -51,7 +51,6 @@ class RobotDog:
             except Exception as e:
                 print(f"Error computing IK for leg {i}: {e}")
                 return
-
         for i in range(4):
             self.legs[i].move(*angles[i])
             self.legs[i].current_position = targets[i]

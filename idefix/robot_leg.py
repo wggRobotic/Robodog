@@ -143,16 +143,23 @@ class RobotLeg:
             print(f"Unexpected error in move: {e} (Leg ID: {self.id})")
 
     def get_load_sum(self):
-        load_sum = 0
+        load_sum = 0.0
         for i in self.servo_ids:
             load = self.sc.get_load(i)
             if load is not None:
                 load_sum += load
         return load_sum
     def get_present_current_sum(self):
-        current_sum = 0
+        current_sum = 0.0
         for i in self.servo_ids:
             current = self.sc.get_present_current(i)
             if current is not None:
                 current_sum += current
         return current_sum
+    def read_movement(self):
+        moving_total = False
+        for id in self.servo_ids:
+            moving, sts_comm_result, sts_error = self.sc.read_movement(id)
+            if moving:
+                moving_total = True
+        return moving_total
