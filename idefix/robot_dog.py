@@ -172,9 +172,12 @@ class RobotDog:
     def yaw(self, alpha, position: List[List[float]]) -> List[List[float]]:
         yaw_positions = []
         for i, leg in enumerate(self.legs):
-            x, y, z = position[i]
-            # print(leg.id)
-            match leg.id:
+            yaw_positions.append(self.yaw_just_one_single_leg(alpha,position[i],i))
+        return yaw_positions
+    
+    def yaw_just_one_single_leg(self, alpha, position: List[float], leg_id:int) -> List[float]:
+        x, y, z = position
+        match leg_id:
                 case 0:
                     x_distance = self.body_length / 2 + x
                     y_distance = self.body_width / 2 + y
@@ -183,7 +186,7 @@ class RobotDog:
                     yaw_angle2 = yaw_angle1 + alpha
                     new_x = radius * math.cos(yaw_angle2) - self.body_length / 2
                     new_y = radius * math.sin(yaw_angle2) - self.body_width / 2
-                    yaw_positions.append([new_x, new_y, z])
+                    return [new_x, new_y, z]
                 case 1:
                     x_distance = self.body_length / 2 + x
                     y_distance = self.body_width / 2 - y
@@ -192,7 +195,7 @@ class RobotDog:
                     yaw_angle2 = yaw_angle1 - alpha
                     new_x = radius * math.cos(yaw_angle2) - self.body_length / 2
                     new_y = radius * math.sin(yaw_angle2) * -1 + self.body_width / 2
-                    yaw_positions.append([new_x, new_y, z])
+                    return [new_x, new_y, z]
                 case 2:
                     x_distance = self.body_length / 2 - x
                     y_distance = self.body_width / 2 + y
@@ -201,7 +204,7 @@ class RobotDog:
                     yaw_angle2 = yaw_angle1 - alpha
                     new_x = radius * math.cos(yaw_angle2) * -1 + self.body_length / 2
                     new_y = radius * math.sin(yaw_angle2) - self.body_width / 2
-                    yaw_positions.append([new_x, new_y, z])
+                    return [new_x, new_y, z]
 
                 case 3:
                     x_distance = self.body_length / 2 - x
@@ -211,6 +214,12 @@ class RobotDog:
                     yaw_angle2 = yaw_angle1 + alpha
                     new_x = radius * math.cos(yaw_angle2) * -1 + self.body_length / 2
                     new_y = radius * math.sin(yaw_angle2) * -1 + self.body_width / 2
-                    yaw_positions.append([new_x, new_y, z])
-
-        return yaw_positions
+                    return [new_x, new_y, z]
+    
+    def translation(self, x_offset, y_offset, z_offset, positions:List[List[float]]) -> List[List[float]]:
+        new_positions = []
+        for i, leg in enumerate(self.legs):
+            x, y, z = positions[i]
+            new_positions.append([x + x_offset, y + y_offset, z + z_offset])
+        return new_positions
+        

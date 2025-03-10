@@ -38,12 +38,12 @@ class Gait:
 
         position_sequence = []
 
-        delta_x = lin_x / 8
-        delta_y = lin_y / 8
+        delta_x = lin_x / interpolation_steps
+        delta_y = lin_y / interpolation_steps
 
         # moves legs up
         for i in range(1, interpolation_steps + 1):
-            print(i)
+            
 
             leg_positions = self.dog.get_leg_positions()
             new_positions = []
@@ -61,7 +61,7 @@ class Gait:
 
         # moves legs down
         for i in range(interpolation_steps * 3, 0, -1):
-            print(i)
+            
             leg_positions = self.dog.get_leg_positions()
 
             new_positions = []
@@ -92,7 +92,7 @@ class Gait:
         # inserts moments where all 4 legs are touching the ground
         for i in range(3, -1, -1):
             push = []
-
+            
             for j, position in enumerate(shifted_push_back[i * interpolation_steps]):
                 should_x, should_y, should_z = position
                 is_x, is_y, is_z = self.dog.legs[j].current_position

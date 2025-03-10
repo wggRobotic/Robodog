@@ -29,7 +29,7 @@ def print_present_currents(dog):
     
 def walking_loop(dog):
     g = Gait(dog)
-    push_back = g.walk(50.0, 0.0, 0.0, 2.0, 30.0,8)
+    push_back = g.walk(50.0, 0.0, 0.0, 2.0, 20.0,8)
     while True:
         for push in push_back:
             # print(push)
@@ -87,10 +87,13 @@ def print_angles():
             
 def auto_balance(dog):
     i2c = board.I2C()
-    imu = IMU(i2c, window_size=3, threshold=50.0)
+    imu = IMU(i2c,pitch_offset= -0.0,roll_offset= 0.0, window_size=3, threshold=50.0)
 
     roll_value = 0
     pitch_value = 0
+    
+    roll_sensor_value = 0
+    pitch_sensor_value = 0
     new_pos = LEGS_INITIAL_POSITIONS
 
     while True:
@@ -98,12 +101,15 @@ def auto_balance(dog):
         angles = imu.get_filtered_euler_angles()
         if angles:
             roll, pitch, yaw = angles
-            roll_value = int(roll) / 180 * math.pi #if abs(roll) > 1 else 0
-            pitch_value = int(pitch + 4.5) / 180 * math.pi# if abs(pitch + 4.5) > 2 else 0
-            print(f"Filtered Euler angles: Roll={roll:.2f}°, Pitch={(pitch + 4.5):.2f}°, roll_value={roll_value:.2f}, pitch_value={pitch_value:.2f}")
+            roll_sensor_value = int(roll) / 180 * math.pi # if abs(roll) > 1 else 0
+            pitch_sensor_value = int(pitch + 4.5) / 180 * math.pi # if abs(pitch + 4.5) > 2 else 0
+            print(f"Filtered Euler angles: Roll={roll:.2f}°, Pitch={(pitch + 4.5):.2f}°, roll_value={roll_sensor_value:.2f}, pitch_value={pitch_sensor_value:.2f}")
 
         if abs(pitch) > 2 or abs(roll) > 1:
-            new_pos = dog.pitch(-pitch_value, dog.roll(-roll_value, LEGS_INITIAL_POSITIONS))
+            roll_value -= roll_sensor_value
+            pitch_value -= pitch_sensor_value
+            
+            new_pos = dog.pitch(pitch_value, dog.roll(roll_value, LEGS_INITIAL_POSITIONS))
             dog.move_legs(new_pos)
             
             movement_total = True
@@ -113,13 +119,9 @@ def auto_balance(dog):
                     #print(f"id:{i} {leg.read_movement()}")
                     if(leg.read_movement()):
                         movement_total = True
-        
-       
-
-        time.sleep(0.1)  # Small sleep to prevent high CPU usage
-            
-        
-
+                time.sleep(0.1)
+                
+                
 def control_rotation(dog):
     
     a_lock = False
@@ -215,13 +217,15 @@ def main():
 
     dog = RobotDog(BODY_LENGTH, BODY_WIDTH)
     
-    
-    # control_rotation(dog)
+    control_rotation(dog)
     # compare_imu_with_rotation(dog)
     # walking_loop(dog)
     # print_present_currents(dog)
     # print_angles()
-    auto_balance(dog)
+    # auto_balance(dog)
+    
+    # time.sleep(1.0)
+    # dog.move_legs(dog.translation(0.0 ,20.0 ,0.0 ,LEGS_INITIAL_POSITIONS))
     
     
 
