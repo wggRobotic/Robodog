@@ -42,20 +42,20 @@ class RobotDog:
             case 1:
                 return self.body_length / 2 + position[0] 
             case 2:
-                return self.body_length / 2 - position[0]
+                return -1*self.body_length / 2 + position[0]
             case 3:
-                return self.body_length / 2 - position[0]
+                return -1*self.body_length / 2 + position[0]
             
     def calculate_delta_y(self,leg_id,position:List[float]):
         match leg_id:
             case 0:
                 return self.body_width / 2 + position[1]
             case 1:
-                return self.body_width / 2 - position[1]
+                return -1*self.body_width / 2 + position[1]
             case 2:
                 return self.body_width / 2 + position[1]
             case 3:
-                return self.body_width / 2 - position[1]
+                return -1*self.body_width / 2 + position[1]
 
     def move_legs(self, targets: List[List[float]]):
         angles = []

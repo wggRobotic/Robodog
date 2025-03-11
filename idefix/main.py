@@ -25,16 +25,15 @@ def print_present_currents(dog):
         else:
             print(f"id: {i} Up {sum}")
             
-    time.sleep(0.4)
+    time.sleep(0.01)
     
 def walking_loop(dog):
     g = Gait(dog)
-    push_back = g.walk(50.0, 0.0, 0.0, 2.0, 20.0,8)
+    push_back = g.walk(-50.0, 0.0, 0.0/180*math.pi, 2.0, 100.0,8)
     while True:
         for push in push_back:
-            # print(push)
             dog.move_legs(push)
-            time.sleep(0.1)
+            time.sleep(0.25)
             
 def compare_imu_with_rotation(dog):
     i2c = board.I2C()
