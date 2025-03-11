@@ -46,11 +46,12 @@ class Gait:
                     z,
                 ]
                 new_positions.append(
-                    self.dog.yaw_just_one_single_leg(
-                        leg_index,
-                        -delta_ang_z * interpolation_steps / 2 + delta_ang_z * i,
-                        new_position,
-                    )
+                    new_position
+                    # self.dog.yaw_just_one_single_leg(
+                    #     -delta_ang_z * interpolation_steps / 2 + delta_ang_z * i,
+                    #     new_position,
+                    #     leg_index,
+                    # )
                 )
             position_sequence.append(new_positions)
 
@@ -60,7 +61,7 @@ class Gait:
             leg_positions_at_start = self.dog.get_leg_positions()
 
             new_positions = []
-            for position in leg_positions_at_start:
+            for leg_index,position in enumerate(leg_positions_at_start):
                 x, y, z = position
                 new_position = [
                     x
@@ -72,11 +73,13 @@ class Gait:
                     z,
                 ]
                 new_positions.append(
-                    self.dog.yaw_just_one_single_leg(
-                        delta_ang_z * interpolation_steps / 2
-                        + delta_ang_z * (i / interpolation_steps * 3),
-                        new_position,
-                    )
+                    new_position
+                    # self.dog.yaw_just_one_single_leg(
+                    #     delta_ang_z * interpolation_steps / 2
+                    #     + delta_ang_z * (i / interpolation_steps * 3),
+                    #     new_position,
+                    #     leg_index
+                    # )
                 )
             position_sequence.append(new_positions)
         # makes legs async
@@ -97,7 +100,7 @@ class Gait:
                 should_x, should_y, should_z = position
                 is_x, is_y, is_z = self.dog.legs[j].current_position
                 push.append([should_x, should_y, is_z])
-            for i in range(
+            for j in range(
                 3
             ):  # TODO: make this smarter with the frequency of the gait and also the step length instead of just using linX and linY
                 shifted_push_back.insert(i * interpolation_steps, push)
@@ -122,9 +125,9 @@ class Gait:
                         delta_y_sum += self.dog.calculate_delta_y(i, push[i])
                 delta_x_m = delta_x_sum / 3
                 delta_y_m = delta_y_sum / 3
-            output.append(self.dog.translation(delta_x_m, delta_y_m, 0, push))
+                output.append(self.dog.translation(delta_x_m, delta_y_m, 0, push))
 
-        return output
+        return shifted_push_back
 
     # Maybe there is a use case for this in the future
     def interpolate_leg_movement(self, leg: "RobotLeg", start, end):

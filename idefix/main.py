@@ -217,9 +217,9 @@ def main():
 
     dog = RobotDog(BODY_LENGTH, BODY_WIDTH)
     
-    control_rotation(dog)
+    # control_rotation(dog)
     # compare_imu_with_rotation(dog)
-    # walking_loop(dog)
+    walking_loop(dog)
     # print_present_currents(dog)
     # print_angles()
     # auto_balance(dog)
