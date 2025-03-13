@@ -5,6 +5,7 @@ import time
 
 from idefix.robot_dog import RobotDog
 from idefix.robot_leg import RobotLeg
+from idefix.robot_constants import *
 from idefix.utilities import shift_columns
 
 
@@ -31,7 +32,7 @@ class Gait:
         delta_lin_y = lin_y / interpolation_steps
         delta_ang_z = ang_z / interpolation_steps
 
-        leg_positions_at_start = self.dog.get_leg_positions()
+        leg_positions_at_start = self.dog.pitch(0/180*math.pi,LEGS_INITIAL_POSITIONS)#self.dog.get_leg_positions()
 
         # moves legs up
         position_sequence = []
@@ -46,19 +47,19 @@ class Gait:
                     z,
                 ]
                 new_positions.append(
-                    #new_position
-                    self.dog.yaw_just_one_single_leg(
-                        -delta_ang_z * interpolation_steps / 2 + delta_ang_z * iteration,
-                        new_position,
-                        leg_index,
-                    )
+                    new_position
+                    # self.dog.yaw_just_one_single_leg(
+                    #     -delta_ang_z * interpolation_steps / 2 + delta_ang_z * iteration,
+                    #     new_position,
+                    #     leg_index,
+                    # )
                 )
             position_sequence.append(new_positions)
 
         # moves legs down
         for iteration in range(interpolation_steps * 3, 0, -1):
 
-            leg_positions_at_start = self.dog.get_leg_positions()
+            #leg_positions_at_start = self.dog.get_leg_positions()
 
             new_positions = []
             for leg_index,leg_position in enumerate(leg_positions_at_start):
@@ -73,13 +74,13 @@ class Gait:
                     z,
                 ]
                 new_positions.append(
-                    # new_position
-                    self.dog.yaw_just_one_single_leg(
-                        delta_ang_z * interpolation_steps / 2
-                        + delta_ang_z * (iteration / interpolation_steps * 3),
-                        new_position,
-                        leg_index
-                    )
+                    new_position
+                    # self.dog.yaw_just_one_single_leg(
+                    #     delta_ang_z * interpolation_steps / 2
+                    #     + delta_ang_z * (iteration / interpolation_steps * 3),
+                    #     new_position,
+                    #     leg_index
+                    # )
                 )
             position_sequence.append(new_positions)
         # makes legs async
@@ -98,7 +99,7 @@ class Gait:
 
             for j, leg_position in enumerate(shifted_push_back[leg_index * interpolation_steps]):
                 should_x, should_y, should_z = leg_position
-                is_x, is_y, is_z = self.dog.legs[j].current_position
+                is_x, is_y, is_z = leg_positions_at_start[j]
                 push.append([should_x, should_y, is_z])
             for j in range(
                 8
@@ -132,6 +133,11 @@ class Gait:
                 output.append(self.dog.translation(-delta_x_m, -delta_y_m, 0, push))
 
         return output
+    
+    def rotate(self, ang_z: float, step_height: float, interpolation_steps: int):
+        leg_positions_at_start = self.dog.get_leg_positions()
+        return self.dog.yaw(ang_z,leg_positions_at_start)
+        
 
     # Maybe there is a use case for this in the future
     def interpolate_leg_movement(self, leg: "RobotLeg", start, end):

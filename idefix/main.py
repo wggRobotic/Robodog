@@ -12,6 +12,7 @@ from idefix.gait import Gait
 from idefix.xbox_controller import XboxController
 from idefix.robot_constants import *
 from idefix.utilities import map_value
+from idefix.debug import start_server
 from idefix.imu import IMU
 
 def print_present_currents(dog):
@@ -29,10 +30,12 @@ def print_present_currents(dog):
     
 def walking_loop(dog):
     g = Gait(dog)
-    push_back = g.walk(-50.0, 0.0, 0.0/180*math.pi, 2.0, 100.0,8)
+    push_back = g.walk(100.0, 0.0, 0.0/180*math.pi, 2.0, 50.0,7)
+    start_server(push_back)
+    print(push_back)
     while True:
         for push in push_back:
-            dog.move_legs(push)
+           # dog.move_legs(push)
             time.sleep(0.25)
             
 def compare_imu_with_rotation(dog):
@@ -172,6 +175,62 @@ def control_rotation(dog):
             b_lock = False
 
         time.sleep(0.1)
+        
+def control_dog(dog):
+    
+    a_lock = False
+    b_lock = False
+    active = True
+    gait = Gait(dog)
+    
+    controller = XboxController()
+    deadzone = 0.2
+    
+    dog_positions = LEGS_INITIAL_POSITIONS
+    
+    while True:
+        # Read controller input for the left joystick Y-axis
+        ly_raw = controller.get_axis('ABS_Y')
+        a = controller.get_button('BTN_SOUTH')
+        b = controller.get_button('BTN_EAST')
+        lx_raw = controller.get_axis('ABS_X')
+        z_raw = controller.get_axis('ABS_Z')
+
+        ly = map_value(ly_raw, 0, 65535, -1, 1)
+        lx = map_value(lx_raw, 0, 65535, -1, 1)
+        rz = map_value(z_raw, 0, 65535, -1, 1)
+
+        # Apply a deadzone to ignore small movements
+        if abs(ly) < deadzone:
+            ly = 0.0
+        if abs(lx) < deadzone:
+            lx = 0.0
+        if abs(rz) < deadzone:
+            rz = 0.0
+        if(rz != 0):
+            dog_positions = dog.yaw(rz*20/180*math.pi,LEGS_INITIAL_POSITIONS)
+        #if(lx !=0):
+        dog_positions = gait.walk(50.0, 0.0, 0.0/180*math.pi, 2.0, 100.0,7)
+        
+        if (active):
+            dog.move_legs(dog_positions)
+
+        # Emergency stop ;)
+        if(a==1 and not a_lock):
+            a_lock = True
+            active = True
+            for leg in dog.legs:
+                leg.deactivate_leg(True)
+            a_lock = False
+
+        if(b==1 and not b_lock):
+            b_lock = True
+            active = False
+            for leg in dog.legs:
+                leg.deactivate_leg(False)
+            b_lock = False
+
+        time.sleep(0.1)
     
         
 def main():
@@ -217,6 +276,7 @@ def main():
     dog = RobotDog(BODY_LENGTH, BODY_WIDTH)
     
     # control_rotation(dog)
+    # control_dog(dog)
     # compare_imu_with_rotation(dog)
     walking_loop(dog)
     # print_present_currents(dog)
@@ -224,6 +284,7 @@ def main():
     # auto_balance(dog)
     
     # time.sleep(1.0)
+    # dog.move_legs(dog.pitch(5/180*math.pi,LEGS_INITIAL_POSITIONS))
     # dog.move_legs(dog.translation(0.0 ,20.0 ,0.0 ,LEGS_INITIAL_POSITIONS))
     
     
