@@ -30,13 +30,13 @@ def print_present_currents(dog):
     
 def walking_loop(dog):
     g = Gait(dog)
-    push_back = g.walk(100.0, 0.0, 0.0/180*math.pi, 2.0, 50.0,7)
-    start_server(push_back)
-    print(push_back)
+    push_back = g.trot(25.0,0.0, 0.0/180*math.pi, 2.0, 40.0,7)#g.trot(-80.0, 0.0, 0.0/180*math.pi, 2.0, 30.0,7)
+    #start_server(push_back)
+    #print(push_back)
     while True:
         for push in push_back:
-           # dog.move_legs(push)
-            time.sleep(0.25)
+            dog.move_legs(push)
+            time.sleep(0.07)
             
 def compare_imu_with_rotation(dog):
     i2c = board.I2C()
@@ -186,13 +186,23 @@ def control_dog(dog):
     controller = XboxController()
     deadzone = 0.2
     
-    dog_positions = LEGS_INITIAL_POSITIONS
+    dog_positions = []
     
     while True:
         # Read controller input for the left joystick Y-axis
+        inset = 80.0
+        small_aline_positions = [
+            [0.0, HIP_TO_SHOULDER - inset, UPPER_LEG_LENGTH+LOWER_LEG_LENGTH - 40.0],
+            [0.0, -HIP_TO_SHOULDER + inset, UPPER_LEG_LENGTH+LOWER_LEG_LENGTH - 40.0],
+            [0.0, HIP_TO_SHOULDER - inset, UPPER_LEG_LENGTH+LOWER_LEG_LENGTH - 40.0],
+            [0.0, -HIP_TO_SHOULDER + inset, UPPER_LEG_LENGTH+LOWER_LEG_LENGTH - 40.0],
+        ]
+            
         ly_raw = controller.get_axis('ABS_Y')
         a = controller.get_button('BTN_SOUTH')
         b = controller.get_button('BTN_EAST')
+        x = controller.get_button('BTN_NORTH')
+        y = controller.get_button('BTN_WEST')
         lx_raw = controller.get_axis('ABS_X')
         z_raw = controller.get_axis('ABS_Z')
 
@@ -207,13 +217,34 @@ def control_dog(dog):
             lx = 0.0
         if abs(rz) < deadzone:
             rz = 0.0
-        if(rz != 0):
-            dog_positions = dog.yaw(rz*20/180*math.pi,LEGS_INITIAL_POSITIONS)
-        #if(lx !=0):
-        dog_positions = gait.walk(50.0, 0.0, 0.0/180*math.pi, 2.0, 100.0,7)
+            
+        dog_positions_front = gait.trot(50.0,0.0, 0.0/180*math.pi, 2.0, 30.0,7)
+        # print(dog_positions_front)
+        dog_positions_back = gait.trot(-90.0,0.0, 0.0/180*math.pi, 2.0, 30.0,7) 
+        dog_positions_left = gait.trot(0.0, -60.0 ,0,2.0,30.0, 7)
+        dog_positions_right = gait.trot(0.0, 60.0 ,0,2.0,30.0, 7)
+        
+        if(lx > 0):
+            dog_positions = dog_positions_left 
+        if(lx < 0):
+            dog_positions = dog_positions_right
+            
+        if(ly < 0):
+            dog_positions = dog_positions_front
+        if(ly > 0):
+            dog_positions = dog_positions_back
+            
+        if(ly == 0 and lx == 0):
+            dog_positions = [LEGS_INITIAL_POSITIONS]
+        
+        print(f"ly: {ly}, lx: {lx}, y: {y}, x: {x}")
         
         if (active):
-            dog.move_legs(dog_positions)
+        
+            for position in dog_positions:
+                #print(position)
+                dog.move_legs(position)
+                time.sleep(0.06)
 
         # Emergency stop ;)
         if(a==1 and not a_lock):
@@ -229,6 +260,9 @@ def control_dog(dog):
             for leg in dog.legs:
                 leg.deactivate_leg(False)
             b_lock = False
+            
+        if(y==1):
+            dog.move_legs(small_aline_positions)
 
         time.sleep(0.1)
     
@@ -275,10 +309,10 @@ def main():
 
     dog = RobotDog(BODY_LENGTH, BODY_WIDTH)
     
-    # control_rotation(dog)
-    # control_dog(dog)
+    #control_rotation(dog)
+    control_dog(dog)
     # compare_imu_with_rotation(dog)
-    walking_loop(dog)
+    # walking_loop(dog)
     # print_present_currents(dog)
     # print_angles()
     # auto_balance(dog)
