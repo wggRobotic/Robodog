@@ -123,23 +123,49 @@ def auto_balance(dog):
                         movement_total = True
                 time.sleep(0.1)
                 
+def make_push_ups(dog):
+    dog_positions = []
+    dog_positions.append(dog.translation(0,0,-100.0,LEGS_INITIAL_POSITIONS))
+    dog_positions.append(LEGS_INITIAL_POSITIONS)
+    while(True):
+        for pos in dog_positions:
+            dog.move_legs(pos)
+            while(True):
+                movement_total = False
+                for i, leg in enumerate(dog.legs):
+                    #print(f"id:{i} {leg.read_movement()}")
+                    if(leg.read_movement()):
+                        movement_total = True
+                if not movement_total:
+                    break
+                time.sleep(0.001)
+                    
                 
 def control_rotation(dog):
     
+    dog_positions = []
     a_lock = False
     b_lock = False
     active = True
+    gait = Gait(dog)
     
+    dog_positions_front = gait.trot(50.0,0.0, 0.0/180*math.pi, 2.0, 50.0,7)
+    dog_positions_back = gait.trot(-90.0,0.0, 0.0/180*math.pi, 2.0, 50.0,7) 
+    dog_positions_left = gait.trot(0.0, -60.0 ,0,2.0,50.0, 7)
+    dog_positions_right = gait.trot(0.0, 60.0 ,0,2.0,50.0, 7)
+
     controller = XboxController()
     deadzone = 0.2
     
     while True:
         # Read controller input for the left joystick Y-axis
         ly_raw = controller.get_axis('ABS_Y')
-        a = controller.get_button('BTN_SOUTH')
-        b = controller.get_button('BTN_EAST')
         lx_raw = controller.get_axis('ABS_X')
         z_raw = controller.get_axis('ABS_Z')
+        d_horizontal = controller.get_axis('ABS_HAT0X')
+        d_vertical = controller.get_axis('ABS_HAT0Y')
+        a = controller.get_button('BTN_SOUTH')
+        b = controller.get_button('BTN_EAST')
 
         ly = map_value(ly_raw, 0, 65535, -1, 1)
         lx = map_value(lx_raw, 0, 65535, -1, 1)
@@ -154,10 +180,24 @@ def control_rotation(dog):
             rz = 0.0
 
         yaw_positions = dog.yaw(rz*20/180*math.pi,LEGS_INITIAL_POSITIONS)
-        roll_position = dog.roll(lx*60/180*math.pi, yaw_positions)
+        roll_position = dog.roll(lx*80/180*math.pi, yaw_positions)
         pitch_positions = dog.pitch(ly*40/180*math.pi, roll_position)
+        
+        if(d_horizontal == 1):
+            dog_positions = dog_positions_left
+        elif(d_horizontal == -1):
+            dog_positions = dog_positions_right
+        elif(d_vertical == 1):
+            dog_positions = dog_positions_back
+        elif(d_vertical == -1):
+            dog_positions = dog_positions_front
+        else:
+            dog_positions = [pitch_positions]
+        
         if (active):
-            dog.move_legs(pitch_positions)
+            for pos in dog_positions:
+                dog.move_legs(pos)
+                time.sleep(0.06)
 
         # Emergency stop ;)
         if(a==1 and not a_lock):
@@ -192,10 +232,10 @@ def control_dog(dog):
         # Read controller input for the left joystick Y-axis
         inset = 80.0
         small_aline_positions = [
-            [0.0, HIP_TO_SHOULDER - inset, UPPER_LEG_LENGTH+LOWER_LEG_LENGTH - 40.0],
-            [0.0, -HIP_TO_SHOULDER + inset, UPPER_LEG_LENGTH+LOWER_LEG_LENGTH - 40.0],
-            [0.0, HIP_TO_SHOULDER - inset, UPPER_LEG_LENGTH+LOWER_LEG_LENGTH - 40.0],
-            [0.0, -HIP_TO_SHOULDER + inset, UPPER_LEG_LENGTH+LOWER_LEG_LENGTH - 40.0],
+            [0.0,  HIP_TO_SHOULDER - inset, UPPER_LEG_LENGTH + LOWER_LEG_LENGTH - 40.0],
+            [0.0, -HIP_TO_SHOULDER + inset, UPPER_LEG_LENGTH + LOWER_LEG_LENGTH - 40.0],
+            [0.0,  HIP_TO_SHOULDER - inset, UPPER_LEG_LENGTH + LOWER_LEG_LENGTH - 40.0],
+            [0.0, -HIP_TO_SHOULDER + inset, UPPER_LEG_LENGTH + LOWER_LEG_LENGTH - 40.0],
         ]
             
         ly_raw = controller.get_axis('ABS_Y')
@@ -219,7 +259,6 @@ def control_dog(dog):
             rz = 0.0
             
         dog_positions_front = gait.trot(50.0,0.0, 0.0/180*math.pi, 2.0, 30.0,7)
-        # print(dog_positions_front)
         dog_positions_back = gait.trot(-90.0,0.0, 0.0/180*math.pi, 2.0, 30.0,7) 
         dog_positions_left = gait.trot(0.0, -60.0 ,0,2.0,30.0, 7)
         dog_positions_right = gait.trot(0.0, 60.0 ,0,2.0,30.0, 7)
@@ -264,8 +303,19 @@ def control_dog(dog):
         if(y==1):
             dog.move_legs(small_aline_positions)
 
-        time.sleep(0.1)
-    
+        while(True):
+            for pos in dog_positions:
+                dog.move_legs(pos)
+                while(True):
+                    movement_total = False
+                    for i, leg in enumerate(dog.legs):
+                        #print(f"id:{i} {leg.read_movement()}")
+                        if(leg.read_movement()):
+                            movement_total = True
+                    if not movement_total:
+                        break
+                    time.sleep(0.001)
+        
         
 def main():
     sc = ServoControl()
@@ -309,8 +359,10 @@ def main():
 
     dog = RobotDog(BODY_LENGTH, BODY_WIDTH)
     
-    #control_rotation(dog)
-    control_dog(dog)
+    control_rotation(dog)
+    # make_push_ups(dog)
+    
+    # control_dog(dog)
     # compare_imu_with_rotation(dog)
     # walking_loop(dog)
     # print_present_currents(dog)
