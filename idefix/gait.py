@@ -308,5 +308,5 @@ class Gait:
                 start[i] + (end[i] - start[i]) * (t / self.steps) for i in range(3)
             ]
             alpha, beta, gamma = leg.inverseKin(*interp)
-            leg.move(alpha, beta, gamma)
+            leg.set_pos(alpha, beta, gamma)
             sleep(0.05)

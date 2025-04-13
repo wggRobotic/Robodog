@@ -149,7 +149,7 @@ def control_rotation(dog):
     active = True
     gait = Gait(dog)
     
-    dog_positions_front = gait.trot(50.0,0.0, 0.0/180*math.pi, 2.0, 50.0,7)
+    dog_positions_front = gait.trot(90.0,0.0, 0.0/180*math.pi, 2.0, 50.0,7)
     dog_positions_back = gait.trot(-90.0,0.0, 0.0/180*math.pi, 2.0, 50.0,7) 
     dog_positions_left = gait.trot(0.0, -60.0 ,0,2.0,50.0, 7)
     dog_positions_right = gait.trot(0.0, 60.0 ,0,2.0,50.0, 7)
@@ -197,7 +197,7 @@ def control_rotation(dog):
         if (active):
             for pos in dog_positions:
                 dog.move_legs(pos)
-                time.sleep(0.06)
+                #time.sleep(0.06)
 
         # Emergency stop ;)
         if(a==1 and not a_lock):

@@ -108,7 +108,7 @@ class RobotLeg:
         for i in self.servo_ids:
             self.sc.enable_torque(i, deactivate)
 
-    def move(self, elbow_angle: float, shoulder_angle: float, hip_angle: float):
+    def set_pos(self, elbow_angle: float, shoulder_angle: float, hip_angle: float):
         try:
             if None in [elbow_angle, shoulder_angle, hip_angle]:
                 raise ValueError("Received None values for angles.")
@@ -136,11 +136,13 @@ class RobotLeg:
                     raise ValueError(f"Angle out of range: {angle} (Leg ID: {self.id})")
                 self.sc.set_pos(servo_id, angle)
 
-            self.sc.move_positions()
         except ValueError as e:
             print(f"Error in move: {e} (Leg ID: {self.id})")
         except Exception as e:
             print(f"Unexpected error in move: {e} (Leg ID: {self.id})")
+            
+    def move_pos(self):
+            self.sc.move_positions()
 
     def get_load_sum(self):
         load_sum = 0.0
@@ -149,6 +151,7 @@ class RobotLeg:
             if load is not None:
                 load_sum += load
         return load_sum
+    
     def get_present_current_sum(self):
         current_sum = 0.0
         for i in self.servo_ids:
@@ -156,6 +159,7 @@ class RobotLeg:
             if current is not None:
                 current_sum += current
         return current_sum
+    
     def read_movement(self):
         moving_total = False
         for id in self.servo_ids:

@@ -1,9 +1,10 @@
 import math
 from typing import List
 import numpy as np
-
+import time
 
 from idefix.robot_leg import RobotLeg
+from idefix.utilities import map_value
 from idefix.servo_control import ServoControl
 from idefix.robot_constants import *
 
@@ -29,7 +30,7 @@ class RobotDog:
                 self.legs.append(leg)
                 angles = leg.inverseKin(*LEGS_INITIAL_POSITIONS[i])
                 if None not in angles:
-                    leg.move(*angles)
+                    leg.set_pos(*angles)
                 else:
                     print(f"Warning: Invalid initial position for leg {i}")
             except Exception as e:
@@ -59,23 +60,30 @@ class RobotDog:
 
     def move_legs(self, targets: List[List[float]]):
         angles = []
+        time_periods = []
 
         for i in range(4):
             try:
-                # current_alpha,current_beta,current_gamma = self.legs[i].inverseKin(*self.legs[i].current_position)
-                alpha, beta, gamma = self.legs[i].inverseKin(
-                    targets[i][0], targets[i][1], targets[i][2]
-                )
-                if None in (alpha, beta, gamma):
+                current_alpha, current_beta, current_gamma = self.legs[i].inverseKin(*self.legs[i].current_position)
+                destination_alpha, destination_beta, destination_gamma = self.legs[i].inverseKin(*targets[i])
+                if None in (destination_alpha, destination_beta, destination_gamma):
                     print(f"Warning: Invalid target position for leg {i}: {targets[i]}")
                     return
-                angles.append((alpha, beta, gamma))
+                time_alpha = map_value(abs(destination_alpha - current_alpha),0,2*math.pi,0,4095) / STS_MOVING_SPEED
+                time_beta = map_value(abs(destination_beta - current_beta),0,2*math.pi,0,4095)/ STS_MOVING_SPEED
+                time_gamma = map_value(abs(destination_gamma - current_gamma),0,2*math.pi,0,4095) / STS_MOVING_SPEED
+                max_time = max(time_alpha, time_beta, time_gamma)
+                time_periods.append(max_time)
+                angles.append((destination_alpha, destination_beta, destination_gamma))
             except Exception as e:
                 print(f"Error computing IK for leg {i}: {e}")
                 return
         for i in range(4):
-            self.legs[i].move(*angles[i])
+            self.legs[i].set_pos(*angles[i])
             self.legs[i].current_position = targets[i]
+        self.sc.move_positions()
+        print(f"time_periods:{max(time_periods)}")
+        time.sleep(max(time_periods))
 
     def get_leg_positions(self) -> List[List[float]]:
         leg_positions = []
