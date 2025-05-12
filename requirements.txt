@@ -1,0 +1,6 @@
+numpy
+matplotlib
+flask
+mpld3
+adafruit-circuitpython-bno055
+evdev  # Only required for Linux systems
