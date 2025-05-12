@@ -23,7 +23,7 @@ Before running the software, ensure you have the following:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/Robodog.git
+   git clone https://github.com/wggRobotic/Robodog.git
    cd Robodog
    ```
 
